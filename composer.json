@@ -2,6 +2,7 @@
     "name": "sveaekonomi/magento1-checkout",
     "type": "magento-module",
     "description": "Svea Ekonomi Checkout, A checkout-bundled payment solution from Svea Ekonomi",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "Webbhuset",
