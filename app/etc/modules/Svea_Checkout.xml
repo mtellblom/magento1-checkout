@@ -1,0 +1,11 @@
+<config>
+    <modules>
+        <Svea_Checkout>
+            <active>true</active>
+            <codePool>community</codePool>
+            <depends>
+                <Mage_Payment/>
+            </depends>
+        </Svea_Checkout>
+    </modules>
+</config>

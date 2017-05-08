@@ -1,0 +1,57 @@
+{
+    "name": "sveaekonomi/magento1-checkout",
+    "type": "magento-module",
+    "description": "Svea Ekonomi Checkout, A checkout-bundled payment solution from Svea Ekonomi",
+    "authors": [
+        {
+            "name": "Webbhuset",
+            "email": "info@webbhuset.com"
+        }
+    ],
+    "depends": {
+        "sveaekonomi/webpay": "~3.2.0"
+    },
+    "require": {
+        "sveaekonomi/webpay": "~3.2.0"
+    },
+    "extra": {
+        "map": [
+            [
+                "app/code/community/Svea/Checkout",
+                "app/code/community/Svea/Checkout"
+            ],
+            [
+                "app/design/frontend/base/default/layout/sveacheckout.xml",
+                "app/design/frontend/base/default/layout/sveacheckout.xml"
+            ],
+            [
+                "app/design/adminhtml/default/default/layout/sveacheckout.xml",
+                "app/design/adminhtml/default/default/layout/sveacheckout.xml"
+            ],
+            [
+                "app/design/frontend/base/default/template/",
+                "app/design/frontend/base/default/template/"
+            ],
+            [
+                "app/design/adminhtml/default/default/template/sveacheckout/",
+                "app/design/adminhtml/default/default/template/sveacheckout/"
+            ],
+            [
+                "app/etc/modules/Svea_Checkout.xml",
+                "app/etc/modules/Svea_Checkout.xml"
+            ],
+            [
+                "js/Svea/Checkout/",
+                "js/Svea/Checkout/"
+            ],
+            [
+                "skin/frontend/base/default/css/sveacheckout/",
+                "skin/frontend/base/default/css/sveacheckout/"
+            ],
+            [
+                "skin/adminhtml/base/default/css/sveacheckout/",
+                "skin/adminhtml/base/default/css/sveacheckout/"
+            ]
+        ]
+    }
+}

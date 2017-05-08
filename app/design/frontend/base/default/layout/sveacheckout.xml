@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<layout>
+    <sveacheckout_index_index>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/1column.phtml</template>
+            </action>
+        </reference>
+        <reference name="head">
+            <action method="addItem">
+                <type>js</type>
+                <name>Svea/Checkout/sveacheckout.js</name>
+            </action>
+            <action method="addCss">
+                <name>css/sveacheckout/sveacheckout.css</name>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="sveacheckout/checkout" name="sveacheckout" template="sveacheckout.phtml">
+                <block type="sveacheckout/checkout_cart" name="checkout.cart">
+                    <action method="setTemplate">
+                        <template>sveacheckout/checkout/elements/cart.phtml</template>
+                    </action>
+                    <action method="addItemRender">
+                        <type>simple</type>
+                        <block>checkout/cart_item_renderer</block>
+                        <template>checkout/cart/item/default.phtml</template>
+                    </action>
+                    <action method="addItemRender">
+                        <type>grouped</type>
+                        <block>checkout/cart_item_renderer_grouped</block>
+                        <template>checkout/cart/item/default.phtml</template>
+                    </action>
+                    <action method="addItemRender">
+                        <type>configurable</type>
+                        <block>checkout/cart_item_renderer_configurable</block>
+                        <template>checkout/cart/item/default.phtml</template>
+                    </action>
+                </block>
+
+                <block type="sveacheckout/checkout_cart" name="checkout.summary"
+                       template="sveacheckout/checkout/elements/cart/summary.phtml">
+                    <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon"
+                           template="sveacheckout/checkout/elements/coupon.phtml"/>
+                    <block type="sveacheckout/checkout_cart_totals" name="checkout.cart.totals" as="totals"
+                           template="sveacheckout/checkout/elements/totals.phtml"/>
+                </block>
+                <block type="sveacheckout/checkout_shipping_methods" name="checkout.shipping"
+                       template="sveacheckout/checkout/elements/shipping/methods.phtml">
+                    <block type="checkout/onepage_payment" name="checkout.onepage.combability"
+                           template="sveacheckout/checkout/elements/shipping/combability.phtml"/>
+                    <block type="sveacheckout/checkout_shipping_method_available" name="checkout.shipping.available"
+                           template="sveacheckout/checkout/elements/shipping/methods/available.phtml"/>
+                    <block type="checkout/onepage_shipping_method_additional" name="checkout.shipping.additional"
+                           template="sveacheckout/checkout/elements/shipping/methods/additional.phtml"/>
+                </block>
+            </block>
+        </reference>
+    </sveacheckout_index_index>
+
+    <sveacheckout_index_terms>
+        <reference name="root">
+            <action method="setTemplate">
+                <template>page/1column.phtml</template>
+            </action>
+        </reference>
+        <reference name="content">
+            <block
+                    type="sveacheckout/checkout_agreements"
+                    name="checkout.svea.agreements"
+                    template="agreements.phtml"
+            />
+        </reference>
+    </sveacheckout_index_terms>
+</layout>

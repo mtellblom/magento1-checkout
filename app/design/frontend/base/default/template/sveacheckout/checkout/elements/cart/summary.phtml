@@ -1,0 +1,23 @@
+<?php
+/**
+ * Svea checkout Cart Summary Template
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Svea_Checkout_Block_Checkout_Cart
+ */
+?>
+<div class="cart">
+    <div class="cart-collaterals">
+        <?php /* Extensions placeholder */ ?>
+        <?= $this->getChildHtml('checkout.cart.extra') ?>
+        <div id="sveacheckout-coupon" class="sveacheckout-coupon">
+            <?= $this->getChildHtml('coupon') ?>
+        </div>
+        <?php if (!$this->getIsVirtual()): echo $this->getChildHtml('shipping'); endif; ?>
+    </div>
+    <div id="sveacheckout-totals" class="sveacheckout-totals totals">
+        <?= $this->getChildHtml('totals'); ?>
+    </div>
+</div>

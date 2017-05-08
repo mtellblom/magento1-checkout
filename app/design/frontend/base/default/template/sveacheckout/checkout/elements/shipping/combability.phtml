@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * Script compatibility file for shipping block
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Svea_Checkout_Block_Checkout_Shipping_Methods
+ */
+?>
+<script type="text/javascript">
+    //<![CDATA[
+    var quoteBaseGrandTotal = <?= (float)$this->getQuoteBaseGrandTotal(); ?>;
+    //]]>
+</script>

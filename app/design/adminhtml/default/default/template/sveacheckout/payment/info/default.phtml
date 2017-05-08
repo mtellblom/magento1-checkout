@@ -1,0 +1,30 @@
+<?php
+/**
+ * Admin payment information block template.
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Mage_Payment_Block_Info
+ */
+?>
+<style>
+    .sveacheckout-payment-info td:first-child {
+        font-weight: bold;
+        padding-right: 15px;
+    }
+</style>
+<img src="http://cdn.svea.com/sveaekonomi/rgb_ekonomi_large.png" />
+<?php if ($_specificInfo = $this->getSpecificInformation()): ?>
+    <table class="sveacheckout-payment-info">
+        <?php foreach ($_specificInfo as $_label => $_value): ?>
+            <tr>
+                <td><?= $this->escapeHtml($_label) ?>:</td>
+                <td><?= nl2br(implode($this->getValueAsArray($_value, false), "\n")) ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
+<?php endif; ?>
+<br/>
+<?= $this->getChildHtml() ?>
+<br/><br/>

@@ -1,0 +1,49 @@
+<?php
+
+/**
+ * Svea Checkout Coupon Template
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Mage_Checkout_Block_Cart_Coupon
+ */
+?>
+<form id="discount-coupon-form" action="<?= $this->getUrl('checkout/cart/couponPost', ['_secure' => true]) ?>"
+      method="post">
+    <div class="discount">
+        <h2><?= $this->__('Discount Codes') ?></h2>
+        <div class="discount-form">
+            <label for="coupon_code"><?= $this->__('Enter your coupon code if you have one.') ?></label>
+            <input type="hidden" name="remove" id="remove-coupone" value="0"/>
+            <div class="input-box">
+                <input class="input-text"
+                       id="coupon_code"
+                       name="coupon_code"
+                       value="<?= $this->htmlEscape($this->getCouponCode()) ?>"
+                />
+            </div>
+            <div class="buttons-set">
+                <button type="button" title="<?= $this->__('Apply Coupon') ?>" class="button"
+                        value="<?= $this->__('Apply Coupon') ?>"
+                >
+                    <span>
+                        <span><?= $this->__('Apply Coupon') ?></span>
+                    </span>
+                </button>
+                <?php if (strlen($this->getCouponCode())): ?>
+                    <button type="button"
+                            title="<?= $this->__('Cancel Coupon') ?>"
+                            class="button cancel-coupon"
+                            data-remove="data-remove"
+                            value="<?= $this->__('Cancel Coupon') ?>"
+                    >
+                        <span>
+                            <span data-remove="data-remove"><?= $this->__('Cancel Coupon') ?></span>
+                        </span>
+                    </button>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</form>

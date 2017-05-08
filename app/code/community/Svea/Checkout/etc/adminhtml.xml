@@ -1,0 +1,42 @@
+<config>
+    <adminhtml>
+        <layout>
+            <updates>
+                <sveacheckout>
+                    <file>sveacheckout.xml</file>
+                </sveacheckout>
+            </updates>
+        </layout>
+    </adminhtml>
+    <menu>
+        <sveacheckout module="sveacheckout" translate="title">
+            <title>Svea Ekonomi</title>
+            <sort_order>20</sort_order>
+            <children>
+                <index module="sveacheckout" translate="title">
+                    <title>Handle Queue Action</title>
+                    <sort_order>1</sort_order>
+                    <action>adminhtml/queue</action>
+                </index>
+            </children>
+        </sveacheckout>
+    </menu>
+    <acl>
+        <resources>
+            <admin>
+                <children>
+                    <sveacheckout translate="title" module="sveacheckout">
+                        <title>Svea Ekonomi Checkout</title>
+                        <sort_order>-100</sort_order>
+                        <children>
+                            <index translate="title">
+                                <title>Handle Queue Action</title>
+                                <sort_order>1</sort_order>
+                            </index>
+                        </children>
+                    </sveacheckout>
+                </children>
+            </admin>
+        </resources>
+    </acl>
+</config>

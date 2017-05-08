@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<layout>
+    <adminhtml_queue_index>
+        <reference name="head">
+            <action method="addCss">
+                <name>css/sveacheckout/sveacheckout.css</name>
+            </action>
+            <action method="addItem">
+                <type>js_css</type>
+                <name>prototype/windows/themes/default.css</name>
+            </action>
+            <action method="addCss">
+                <name>lib/prototype/windows/themes/magento.css</name>
+            </action>
+            <action method="setTitle">
+                <title>Svea Ekonomi Checkout</title>
+            </action>
+        </reference>
+        <reference name="content">
+            <block type="sveacheckout/adminhtml_queue"
+                   template="sveacheckout/queue.phtml"
+                   name="sveacheckout.queue"
+            />
+        </reference>
+    </adminhtml_queue_index>
+</layout>

@@ -1,0 +1,60 @@
+.svea-compare-view .half-width {
+    position: relative;
+    display: inline-block;
+    min-width: 49%;
+}
+
+.svea-compare-view .wrapper.half-width {
+    height: 30rem;
+    overflow: auto;
+}
+
+.svea-compare-view .contact-details {
+    width: 98.5%;
+}
+
+.svea-compare-view .half-width h1 {
+    border-bottom: 1px solid #dadfe0;
+}
+
+.svea-compare-view table th, .svea-compare-view table td {
+    padding: 4px;
+    border-width: 0 1px 1px 0;
+    border-color: #dadfe0;
+    border-style: solid;
+}
+
+.svea-compare-view .cart-items {
+    width: 100%;
+    position: absolute;
+}
+
+.svea-compare-view table {
+    width: 100%;
+}
+
+.svea-compare-view table th {
+    border-top: 1px solid #dadfe0;
+}
+
+.svea-compare-view table tr:hover, .svea-compare-view table tr:nth-child(even):hover {
+    background-color: #fcf5dd;
+}
+
+.svea-compare-view table tr:nth-child(even) {
+    background: #f6f6f6;
+}
+
+.svea-compare-view table tr:nth-child(odd) {
+    border-width: 0 1px 1px 0;
+    border-color: #dadfe0;
+    border-style: solid;
+}
+
+.svea-compare-view .validation .valid {
+    color: #6cac46;
+}
+
+.svea-compare-view .validation .invalid {
+    color: #d20000;
+}

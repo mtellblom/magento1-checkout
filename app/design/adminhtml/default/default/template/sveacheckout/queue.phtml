@@ -1,0 +1,157 @@
+<div class="svea-compare-view">
+    <?php
+    $data = $this->getQueueData();
+    $helper = Mage::helper('sveacheckout/renderer');
+    foreach ($data['details'] as $key => $detail) :?>
+        <div class="wrapper half-width">
+            <h1><?= $key ?></h1>
+            <div class="details">
+                <div class="address-details">
+                    <?php if (isset($detail['ShippingAddress'])): ?>
+                        <div class="address-card half-width">
+                            <div class="entry-edit">
+                                <div class="entry-edit-head">
+                                    <h4 class="icon-head head-billing-address"><?= $this->__('Shipping Address') ?></h4>
+                                </div>
+                                <fieldset>
+                                    <address>
+                                        <?= implode("<br/>", $detail['ShippingAddress']) ?>
+                                    </address>
+                                </fieldset>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (isset($detail['BillingAddress'])): ?>
+                        <div class="address-card half-width">
+                            <div class="entry-edit">
+                                <div class="entry-edit-head">
+                                    <h4 class="icon-head head-billing-address"><?= $this->__('Billing Address') ?></h4>
+                                </div>
+                                <fieldset>
+                                    <address>
+                                        <?= implode("<br/>", $detail['BillingAddress']) ?>
+                                    </address>
+                                </fieldset>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </div>
+                <div class="contact-details">
+                    <div class="entry-edit">
+                        <div class="entry-edit-head">
+                            <h4 class="icon-head head-billing-address"><?= $this->__('Contact details') ?></h4>
+                        </div>
+                        <fieldset>
+                            <div>
+                                <?= $detail['EmailAddress']; ?>
+                                <br/>
+                                <?= $detail['PhoneNumber']; ?>
+                            </div>
+                        </fieldset>
+                    </div>
+                </div>
+            </div>
+            <div class="cart-items">
+                <h1><?= $this->__('Products') ?></h1>
+                <table cellpadding="20" cellspacing="0">
+                    <tr>
+                        <th><?= $this->__('SKU') ?></th>
+                        <th><?= $this->__('Name') ?></th>
+                        <th><?= $this->__('Qty') ?></th>
+                        <th><?= $this->__('UnitPrice') ?></th>
+                        <th><?= $this->__('Discount Percent') ?></th>
+                        <th><?= $this->__('VAT Percent') ?></th>
+                    </tr>
+                    <?php
+                    foreach ($detail['Cart']['Items'] as $cartRow) :?>
+                        <tr>
+                            <td><?= $cartRow['ArticleNumber'] ?></td>
+                            <td><?= $cartRow['Name'] ?></td>
+                            <td><?= $cartRow['Quantity'] ?></td>
+                            <td><?= $cartRow['UnitPrice'] ?></td>
+                            <td><?= $cartRow['DiscountPercent'] ?></td>
+                            <td><?= $cartRow['VatPercent'] ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </table>
+            </div>
+        </div>
+    <?php endforeach; ?>
+    <div class="validation">
+        <?= $data['sveaStatus'] ?>
+        <?= $data['validation'] ?>
+    </div>
+    <table cellpadding="20" cellspacing='0'>
+        <thead>
+        <tr>
+            <th><?= $this->__('View Details') ?></th>
+            <th><?= $this->__('Order ID') ?></th>
+            <th><?= $this->__('Quote ID') ?></th>
+            <th><?= $this->__('Svea ID') ?></th>
+            <th><?= $this->__('Customer ID') ?></th>
+            <th><?= $this->__('Email') ?></th>
+            <th><?= $this->__('Total Amount') ?></th>
+            <th><?= $this->__('Updated') ?></th>
+            <th><?= $this->__('Created date') ?></th>
+            <th><?= $this->__('Status'); ?></th>
+            <th><?= $this->__('Create order') ?></th>
+            <th><?= $this->__('Remove') ?></th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php if (!count($data['rows'])) : ?>
+            <tr>
+                <td colspan="12">
+                    <h2><?= $this->__('No records found.') ?></h2>
+                </td>
+            </tr>
+        <?php endif ?>
+        <?php foreach ($data['rows'] as $cells) : ?>
+            <tr>
+                <?php foreach ($cells as $cell) : ?>
+                    <td><?= $cell ?></td>
+                <?php endforeach; ?>
+            </tr>
+        <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript">
+    function viewResponse(el) {
+        if ($('browser_window') && typeof(Windows) != 'undefined') {
+            Windows.focus('browser_window');
+            return;
+        }
+        var popupDialog = Dialog.info(null, {
+            closable:true,
+            resizable:false,
+            draggable:true,
+            className:'magento',
+            title:'Confirmation',
+            url:el.getAttribute('data-href'),
+            top:50,
+            width:300,
+            height:150,
+            zIndex:1000,
+            recenterAuto:false,
+            hideEffect:Element.hide,
+            showEffect:Element.show,
+            id:'browser_window'
+        });
+    }
+
+    var cartItems = document.getElementsByClassName('cart-items');
+    var detailItems = document.getElementsByClassName('details');
+    var offset = 0;
+
+    for (var x = 0; x < detailItems.length; x++) {
+        offset = (detailItems[x].offsetHeight > offset)
+            ? detailItems[x].offsetHeight
+            : offset;
+    }
+
+    for (var i = 0; i < cartItems.length; i++) {
+        cartItems[i].style.top = offset + 50 + 'px';
+    }
+</script>

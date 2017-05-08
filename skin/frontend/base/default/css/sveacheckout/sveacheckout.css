@@ -1,0 +1,72 @@
+.pre-svea-block-wrapper {
+    display: none;
+}
+
+.pre-svea-block-wrapper .data-table.cart-table {
+    width: 100%;
+}
+.pre-svea-block-wrapper #shopping-cart-totals-table {
+    width: 100%;
+}
+
+@media only screen and (min-width: 1200px) {
+    .pre-svea-block-wrapper {
+        float: left;
+        width: 50%;
+        display: block;
+    }
+}
+
+#sveacheckout-wrapper.loading:after {
+    font-size: 1.5rem;
+    position: absolute;
+    text-align: center;
+    width:100%;
+    background: rgba(255,255,255,0.6);
+    top: 50%;
+    transform: translateY(-50%);
+    font-weight: bold;
+    height: 100%;
+    padding-top: 20%;
+    content: attr(data-loading-text);
+    z-index: 1;
+}
+
+#sveacheckout-message[data-style=error] {
+    text-align: center;
+    display: block;
+    border: 2px solid  black;
+}
+
+.cart .product-cart-image {
+    min-width: 5rem;
+}
+
+.cart .discount-form .input-box {
+    width: auto;
+}
+
+.cart .discount-form .input-box input {
+    width: 100%;
+}
+
+.cart .discount-form .buttons-set {
+    border-top: 0px;
+}
+
+.cart .discount-form .buttons-set button.button {
+    display: block;
+    text-align: right;
+}
+
+.svea-checkout-window iframe {
+    padding-left: 1rem;
+}
+
+.sveacheckout-totals {
+    margin-top: 1rem;
+}
+
+.sveacheckout-totals.totals td.a-right + td.a-right {
+    width: 15%;
+}

@@ -1,0 +1,99 @@
+<?php
+
+/**
+ * Svea Checkout Cart Template
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Svea_Checkout_Block_Checkout_Cart
+ */
+?>
+<div id="sveacheckout-cart" class="cart">
+    <div class="page-title title-buttons">
+        <h1><?= $this->__('Shopping Cart') ?></h1>
+    </div>
+    <?= $this->getChildHtml('form_before') ?>
+    <form id="co-product-cart-form" action="<?= $this->getPostUrl() ?>" method="post">
+        <?= $this->getBlockHtml('formkey'); ?>
+        <fieldset>
+            <table id="shopping-cart-table" class="full-width data-table cart-table">
+                <col width="1"/>
+                <col/>
+                <col width="1"/>
+                <?php if ($this->helper('wishlist')->isAllowInCart()) : ?>
+                    <col width="1"/>
+                <?php endif ?>
+                <?php if ($this->helper('tax')->displayCartPriceExclTax() || $this->helper('tax')->displayCartBothPrices()): ?>
+                    <col width="1"/>
+                <?php endif; ?>
+                <?php if ($this->helper('tax')->displayCartPriceInclTax() || $this->helper('tax')->displayCartBothPrices()): ?>
+                    <col width="1"/>
+                <?php endif; ?>
+                <col width="1"/>
+                <?php if ($this->helper('tax')->displayCartPriceExclTax() || $this->helper('tax')->displayCartBothPrices()): ?>
+                    <col width="1"/>
+                <?php endif; ?>
+                <?php if ($this->helper('tax')->displayCartPriceInclTax() || $this->helper('tax')->displayCartBothPrices()): ?>
+                    <col width="1"/>
+                <?php endif; ?>
+                <col width="1"/>
+
+                <?php $mergedCells = ($this->helper('tax')->displayCartBothPrices() ? 2 : 1); ?>
+                <thead>
+                <tr>
+                    <th rowspan="<?= $mergedCells; ?>">&nbsp;</th>
+                    <th rowspan="<?= $mergedCells; ?>"><span class="nobr"><?= $this->__('Product Name') ?></span></th>
+                    <th class="a-center" colspan="<?= $mergedCells; ?>"><span
+                            class="nobr"><?= $this->__('Unit Price') ?></span></th>
+                    <th rowspan="<?= $mergedCells; ?>" class="a-center"><?= $this->__('Qty') ?></th>
+                    <th class="a-center" colspan="<?= $mergedCells; ?>"><?= $this->__('Subtotal') ?></th>
+                    <th rowspan="<?= $mergedCells; ?>" class="a-center">&nbsp;</th>
+                </tr>
+                <?php if ($this->helper('tax')->displayCartBothPrices()): ?>
+                    <tr>
+                        <th class="a-right"><?= $this->helper('tax')->getIncExcTaxLabel(false) ?></th>
+                        <th><?= $this->helper('tax')->getIncExcTaxLabel(true) ?></th>
+                        <th class="a-right"><?= $this->helper('tax')->getIncExcTaxLabel(false) ?></th>
+                        <th><?= $this->helper('tax')->getIncExcTaxLabel(true) ?></th>
+                    </tr>
+                <?php endif; ?>
+                </thead>
+                <tfoot>
+                <tr>
+                    <td colspan="50" class="a-right">
+                        <?php if ($this->getContinueShoppingUrl()): ?>
+                            <button type="button" title="<?= $this->__('Continue Shopping') ?>"
+                                    class="button btn-continue"
+                                    onclick="setLocation('<?= $this->getContinueShoppingUrl() ?>')">
+                                    <span>
+                                        <?= $this->__('Continue Shopping') ?>
+                                    </span>
+                            </button>
+                        <?php endif; ?>
+                        <button type="submit" name="update_cart_action" value="update_qty"
+                                title="<?= $this->__('Update Shopping Cart'); ?>" class="button btn-update">
+                                <span>
+                                    <?= $this->__('Update Shopping Cart'); ?>
+                                </span>
+                        </button>
+                        <button type="submit" name="update_cart_action" value="empty_cart"
+                                title="<?= $this->__('Clear Shopping Cart'); ?>" class="button btn-empty"
+                                id="empty_cart_button">
+                                <span>
+                                    <?= $this->__('Clear Shopping Cart'); ?>
+                                </span>
+                        </button>
+                    </td>
+                </tr>
+                </tfoot>
+                <tbody>
+                <?php foreach ($this->getItems() as $_item): ?>
+                    <?= $this->getItemHtml($_item) ?>
+                <?php endforeach ?>
+                </tbody>
+            </table>
+            <script type="text/javascript">decorateTable('shopping-cart-table')</script>
+        </fieldset>
+    </form>
+</div>

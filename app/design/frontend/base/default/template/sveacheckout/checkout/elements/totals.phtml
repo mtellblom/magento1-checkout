@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Shopping cart totals template
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Mage_Checkout_Block_Cart_Totals
+ */
+?>
+<?php if ($this->canApplyMsrp()): ?>
+    <div class="cart-msrp-totals"><?= $this->__('ORDER TOTAL WILL BE DISPLAYED BEFORE YOU SUBMIT THE ORDER'); ?></div>
+<?php else: ?>
+    <table id="shopping-cart-totals-table">
+        <col/>
+        <col width="1"/>
+        <tfoot>
+        <?= $this->renderTotals('footer'); ?>
+        </tfoot>
+        <tbody>
+        <?= $this->renderTotals(); ?>
+        </tbody>
+    </table>
+<?php endif; ?>

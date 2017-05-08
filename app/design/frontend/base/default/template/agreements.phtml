@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * Agreement template
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Mage_Checkout_Block_Agreements
+ */
+?>
+<?php if (!$this->getAgreements()) return; ?>
+<ol class="checkout-agreements">
+    <?php foreach ($this->getAgreements() as $_a): ?>
+        <li>
+            <div class="agreement-content"<?= ($_a->getContentHeight() ? ' style="height:' . $_a->getContentHeight() . '"' : '')?>>
+                <?php if ($_a->getIsHtml()):?>
+                    <?= $_a->getContent() ?>
+                <?php else:?>
+                    <?= nl2br($this->htmlEscape($_a->getContent())) ?>
+                <?php endif; ?>
+            </div>
+        </li>
+    <?php endforeach ?>
+</ol>

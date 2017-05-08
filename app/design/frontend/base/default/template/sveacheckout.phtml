@@ -1,0 +1,43 @@
+<?php
+
+/**
+ * Agreement template
+ *
+ * @package Svea_Checkout
+ * @module  Svea
+ * @author  Webbhuset <info@webbhuset.se>
+ * @see     Mage_Checkout_Block_SveaCheckout
+ */
+?>
+<?php
+$helper = Mage::helper('sveacheckout');
+$quote  = Mage::getSingleton('checkout/session')->getQuote();
+$sveaOrderId = ($quote->getPaymentReference())
+             ? $quote->getPaymentReference()
+             : 0;
+?>
+<div id="sveacheckout-message"></div>
+<div id="sveacheckout-wrapper"
+     data-loading-text="<?= $this->__('Please wait...') ?>"
+     class="pre-svea-block-wrapper"
+>
+    <div class="cart">
+        <?= $this->getChildHtml('checkout.cart'); ?>
+    </div>
+    <div class="shipping-and-handling">
+        <?= $this->getChildHtml('checkout.shipping'); ?>
+    </div>
+    <div class="summary-code">
+        <?= $this->getChildHtml('checkout.summary'); ?>
+    </div>
+</div>
+<script type="text/javascript">
+    var sveacheckout = new SveaCheckout({
+        postUrl: '<?= Mage::getUrl('sveacheckout/updateCart/updateCheckout', array('_secure' => true)) ?>',
+        htmlAlert: null,
+        messageTimeout: 2000,
+        sveaOrderId: '<?= $sveaOrderId ?>',
+        inCheckout: 1,
+        debug: 0
+    });
+</script>

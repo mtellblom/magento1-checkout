@@ -1,0 +1,146 @@
+<config>
+    <modules>
+        <Svea_Checkout>
+            <version>1.0.0</version>
+        </Svea_Checkout>
+    </modules>
+    <global>
+        <helpers>
+            <sveacheckout>
+                <class>Svea_Checkout_Helper</class>
+            </sveacheckout>
+        </helpers>
+        <blocks>
+            <checkout>
+                <rewrite>
+                    <onepage>Svea_Checkout_Block_Onepage</onepage>
+                </rewrite>
+            </checkout>
+            <sveacheckout>
+                <class>Svea_Checkout_Block</class>
+            </sveacheckout>
+        </blocks>
+        <models>
+            <sveacheckout>
+                <class>Svea_Checkout_Model</class>
+                <resourceModel>sveacheckout_resource</resourceModel>
+            </sveacheckout>
+            <sveacheckout_resource>
+                <class>Svea_Checkout_Model_Resource</class>
+                <entities>
+                    <queue>
+                        <table>sveacheckout_queue</table>
+                    </queue>
+                </entities>
+            </sveacheckout_resource>
+        </models>
+        <resources>
+            <sveacheckout_setup>
+                <setup>
+                    <module>Svea_Checkout</module>
+                    <class>Svea_Checkout_Model_Resource_Setup</class>
+                </setup>
+            </sveacheckout_setup>
+        </resources>
+    </global>
+    <frontend>
+        <routers>
+            <checkout>
+                <args>
+                    <modules>
+                        <sveacheckout before="Mage_Checkout">Svea_Checkout</sveacheckout>
+                    </modules>
+                </args>
+            </checkout>
+            <sveacheckout>
+                <use>standard</use>
+                <args>
+                    <module>Svea_Checkout</module>
+                    <frontName>sveacheckout</frontName>
+                </args>
+            </sveacheckout>
+        </routers>
+        <layout>
+            <updates>
+                <sveacheckout>
+                    <file>sveacheckout.xml</file>
+                </sveacheckout>
+            </updates>
+        </layout>
+        <sveacheckout>
+            <in_checkout_handles>
+                <sveacheckout_index />
+                <sveacheckout_index_index />
+            </in_checkout_handles>
+        </sveacheckout>
+    </frontend>
+    <adminhtml>
+        <layout>
+            <updates>
+                <sveacheckout>
+                    <file>sveacheckout.xml</file>
+                </sveacheckout>
+            </updates>
+        </layout>
+    </adminhtml>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <Svea_Checkout before="Mage_Adminhtml">Svea_Checkout_Adminhtml</Svea_Checkout>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+    <default>
+        <payment>
+            <sveacheckout>
+                <active>1</active>
+                <title><![CDATA[Svea Checkout]]></title>
+                <model><![CDATA[sveacheckout/payment_invoice]]></model>
+                <order_status><![CDATA[sveacheckout_pending]]></order_status>
+                <order_status_before_acknowledge><![CDATA[sveacheckout_acknowledged]]></order_status_before_acknowledge>
+            </sveacheckout>
+        </payment>
+    </default>
+    <sales>
+        <quote>
+            <item>
+                <product_attributes>
+                    <payment_reference />
+                </product_attributes>
+            </item>
+        </quote>
+    </sales>
+    <scope id="global">
+        <fieldset id="sales_convert_quote">
+            <field name="payment_reference">
+                <aspect name="to_order" />
+            </field>
+        </fieldset>
+        <fieldset id="sales_convert_order">
+            <field name="payment_reference">
+                <aspect name="to_quote" />
+                <aspect name="to_invoice" />
+                <aspect name="to_shipment" />
+                <aspect name="to_cm" />
+            </field>
+        </fieldset>
+    </scope>
+    <crontab>
+        <jobs>
+            <svea_checkout_cleanup_task>
+                <schedule>
+                    <cron_expr>*/15 * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>sveacheckout/cron::run</model>
+                </run>
+            </svea_checkout_cleanup_task>
+        </jobs>
+    </crontab>
+</config>
+
+
