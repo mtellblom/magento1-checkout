@@ -263,7 +263,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
 
             if ($item->isChildrenCalculated()) {
                 foreach ($children as $child) {
-                    $this->_processItem($child, $item->getId());
+                    $this->_processItem($child, $item->getId(), $item->getQty());
                 }
             } else {
                 $this->_processItem($item);
@@ -278,8 +278,9 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      *
      * @param Mage_Sales_Model_Quote_Item $item
      * @param string                      $prefix quote_item_id | parent_quote_item_id
+     * @param float|integer                               $multiply
      */
-    protected function _processItem($item, $prefix = '')
+    protected function _processItem($item, $prefix = '', $multiply = 1)
     {
         $sveaOrder = $this->getSveaOrder();
         if ($item->getQty() > 0) {
@@ -287,10 +288,11 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
                 $prefix = $prefix . '-';
             }
 
+            $qty = $item->getQty() * $multiply;
             $orderRowItem = WebPayItem::orderRow()
                 ->setAmountIncVat((float)$item->getPriceInclTax())
                 ->setVatPercent((int)round($item->getTaxPercent()))
-                ->setQuantity((float)round($item->getQty(), 2))
+                ->setQuantity((float)round($qty, 2))
                 ->setArticleNumber($prefix . $item->getSku())
                 ->setName((string)substr($item->getName(), 0, 40))
                 ->setTemporaryReference((string)$item->getId());
