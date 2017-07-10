@@ -17,7 +17,7 @@ class Svea_Checkout_Model_Payment_Invoice
     protected $_canRefund               = true;
     protected $_canCapturePartial       = false;
     protected $_canRefundInvoicePartial = false;
-    protected $_canVoid                 = false;
+    protected $_canVoid                 = true;
     protected $_canUseInternal          = false;
 
     /**
@@ -165,7 +165,8 @@ class Svea_Checkout_Model_Payment_Invoice
      */
     public function cancel(Varien_Object $payment)
     {
-        return $this;
+
+        return $this->void($payment);
     }
 
     /**
@@ -177,7 +178,13 @@ class Svea_Checkout_Model_Payment_Invoice
      */
     public function void(Varien_Object $payment)
     {
-        return $this->cancel($payment);
+        $order       = $payment->getOrder();
+        $appEmulation    = Mage::getSingleton('core/app_emulation');
+        $environmentInfo = $appEmulation->startEnvironmentEmulation($order->getStoreId());
+        $result          = Mage::getModel('sveacheckout/Payment_Api_Invoice')->void($payment);
+        $appEmulation->stopEnvironmentEmulation($environmentInfo);
+
+        return $this;
     }
 
     /**

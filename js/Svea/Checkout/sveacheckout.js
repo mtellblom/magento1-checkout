@@ -313,14 +313,14 @@ SveaCheckout.prototype = {
       if (typeof html.cartBlock !== 'undefined' && $('sveacheckout-cart') ) {
         $('sveacheckout-cart').update(html.cartBlock);
       }
-      if (typeof html.snippet !== 'undefined' && $('sveacheckout-snippet')) {
-        $('sveacheckout-snippet').update(html.snippet);
-      }
 
       /**
        * Remove loading state
        */
       $('sveacheckout-wrapper').removeClassName('loading');
+      if (typeof window.scoApi !== 'Undefined') {
+        window.scoApi.setCheckoutEnabled(true);
+      }
     }.bind(this));
 
     /**
@@ -388,6 +388,9 @@ SveaCheckout.prototype = {
      */
     document.addEventListener("startingAjaxFail", function (event) {
       $('sveacheckout-wrapper').removeClassName('loading');
+      if (typeof window.scoApi !== 'Undefined') {
+        window.scoApi.setCheckoutEnabled(true);
+      }
     }.bind(this));
   },
 

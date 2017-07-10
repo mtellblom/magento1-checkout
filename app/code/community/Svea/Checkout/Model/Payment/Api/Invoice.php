@@ -16,6 +16,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
     const SVEA_IS_INVOICEABLE               = 'CanDeliverOrder';
     const SVEA_IS_PARTIALLY_INVOICEABLE     = 'CanDeliverPartially';
     const SVEA_ROW_IS_IS_INVOICEABLE        = 'CanDeliverRow';
+    const SVEA_CAN_CANCEL_ORDER             = 'CanCancelOrder';
     const SVEA_CAN_ADD_ORDER_ROW            = 'CanAddOrderRow';
     const SVEA_ROW_IS_IS_UPDATEABLE         = 'CanUpdateOrderRow';
     const SVEA_CURRENT_ROW_IS_IS_UPDATEABLE = 'CanUpdateRow';
@@ -98,8 +99,8 @@ class Svea_Checkout_Model_Payment_Api_Invoice
             ->setInvoiceDistributionType(DistributionType::POST)
             ->setRowsToDeliver(array_keys($deliverItems));
         $request->deliverCheckoutOrderRows()->doRequest();
-
         $sveaOrder = $this->_getCheckoutOrder($order);
+
         return new Varien_Object($sveaOrder);
     }
 
@@ -131,6 +132,52 @@ class Svea_Checkout_Model_Payment_Api_Invoice
             throw new Mage_Adminhtml_Exception('Cannot process more than ordered quantity.');
         }
 
+        $prefix = '';
+        if (isset($referenceNumber)) {
+            $prefix = $referenceNumber . '-';
+        }
+
+        if (
+            $item['UnitPrice'] <0
+            && stripos($item['Name'] , 'discount') !== false
+            && $item['UnitPrice'] != $item['newDiscount']*-1
+        ) {
+            $rest = $item['UnitPrice'] + $item['newDiscount'];
+
+            $partialActionRow = WebPayItem::numberedOrderRow()
+                ->setRowNumber($key)
+                ->setArticleNumber($referenceNumber . '-' . $item['Name'])
+                ->setAmountIncVat((float)$item['newDiscount']*-1)
+                ->setVatPercent((int)$item['VatPercent'])
+                ->setQuantity($item['Quantity']);
+
+            $restOfRowQty = WebPayItem::orderRow()
+                ->setArticleNumber($item['ArticleNumber'])
+                ->setName($item['Name'])
+                ->setAmountIncVat((float)$rest)
+                ->setVatPercent((int)$item['VatPercent'])
+                ->setQuantity((int)$item['Quantity']);
+
+            $updateRows = WebPayAdmin::updateOrderRows($this->getSveaConfig())
+                ->setCheckoutOrderId($sveaOrderId)
+                ->setCountryCode($locale)
+                ->updateOrderRow($partialActionRow);
+
+            $addRows = WebPayAdmin::addOrderRows($this->getSveaConfig())
+                ->setCheckoutOrderId($sveaOrderId)
+                ->setCountryCode($locale['purchase_country'])
+                ->addOrderRow($restOfRowQty);
+
+
+            if (isset($updateRows)) {
+                $updateRows->updateCheckoutOrderRows()->doRequest();
+            }
+            if (isset($addRows)) {
+                $addRows->addCheckoutOrderRows()->doRequest();
+            }
+
+            return 'adjustedDiscount';
+        }
         if ($adjustQty < $qty) {
             $rest = $item['Quantity'] - $adjustQty;
 
@@ -228,49 +275,125 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                      [$this::SVEA_CAN_CREDIT_ORDER_ROWS]
                  );
              }
-         }
+        }
 
         $tmpRefundItems = array_filter($tmpRefundItems);
-        $deliveryId     = (int)implode('',array_keys($tmpRefundItems));
-        $refundItems    = array_pop($tmpRefundItems);
-        $locale         = $this->_getLocale($order);
+        foreach ($tmpRefundItems as $deliveryId => $refundItems) {
+            $deliveryId = (int)$deliveryId;
+            $locale     = $this->getLocale($order);
 
-        foreach ($refundItems as $key => $refundItem) {
-            if ($refundItem['action_qty'] == $refundItem['Quantity']) {
-                $fullyRefunded[$key] = $refundItem;
-            } else {
-                $partialRefundedItems[$key] = $refundItem;
+            foreach ($refundItems as $key => $refundItem) {
+                if (
+                    $refundItem['UnitPrice'] < 0
+                    && stripos($refundItem['Name'] , 'discount') !== false
+                    && $refundItem['UnitPrice'] != $refundItem['newDiscount']*-1
+                ) {
+                    $partialRefundedItems[$key] = $refundItem;
+
+
+                    continue;
+                }
+
+                if ($refundItem['action_qty'] == $refundItem['Quantity']) {
+                    $fullyRefunded[$key] = $refundItem;
+                } else {
+                    $partialRefundedItems[$key] = $refundItem;
+                }
             }
-        }
 
-        if (isset($fullyRefunded) && sizeof($fullyRefunded)) {
-            $creditOrder = WebPayAdmin::creditOrderRows($sveaConfig)
-                ->setCheckoutOrderId($sveaOrderId)
-                ->setDeliveryId($deliveryId)
-                ->setInvoiceDistributionType(DistributionType::POST)
-                ->setCountryCode($locale['purchase_country'])
-                ->setRowsToCredit(array_keys($fullyRefunded));
-            $creditOrder->creditCheckoutOrderRows()->doRequest();
-        }
-        if (isset($partialRefundedItems) && sizeof($partialRefundedItems)) {
-            foreach ($partialRefundedItems as $refundItem) {
+            if (isset($fullyRefunded) && sizeof($fullyRefunded)) {
                 $creditOrder = WebPayAdmin::creditOrderRows($sveaConfig)
                     ->setCheckoutOrderId($sveaOrderId)
                     ->setDeliveryId($deliveryId)
                     ->setInvoiceDistributionType(DistributionType::POST)
-                    ->setCountryCode($locale['purchase_country']);
-                $refundRow = WebPayItem::orderRow()
-                    ->setAmountIncVat(($refundItem['UnitPrice'] * $refundItem['action_qty']))
-                    ->setName('-' . $refundItem['action_qty'] . 'x ' . $refundItem['ArticleNumber'])
-                    ->setVatPercent($refundItem['VatPercent']);
-                $creditOrder->addCreditOrderRow($refundRow);
-                $creditOrder->creditCheckoutOrderWithNewOrderRow()->doRequest();
+                    ->setCountryCode($locale['purchase_country'])
+                    ->setRowsToCredit(array_keys($fullyRefunded));
+                $creditOrder->creditCheckoutOrderRows()->doRequest();
+            }
+
+            if (isset($partialRefundedItems) && sizeof($partialRefundedItems)) {
+                usort($partialRefundedItems, function($a, $b) {
+                    return $b['OrderRowId'] - $a['OrderRowId'];
+                });
+                $reduceCreditBy = [];
+                foreach ($partialRefundedItems as $refundItem) {
+                    if (
+                        $refundItem['UnitPrice'] < 0
+                        && stripos($refundItem['Name'] , 'discount') !== false
+                        && $refundItem['UnitPrice'] != $refundItem['newDiscount']*-1
+                    ) {
+                        $reduceCreditBy = [
+                            'name'   => $refundItem['Name'],
+                            'amount' => $refundItem['newDiscount']
+                        ];
+                        continue;
+                    }
+
+                    $creditOrder = WebPayAdmin::creditOrderRows($sveaConfig)
+                        ->setCheckoutOrderId($sveaOrderId)
+                        ->setDeliveryId($deliveryId)
+                        ->setInvoiceDistributionType(DistributionType::POST)
+                        ->setCountryCode($locale['purchase_country']);
+
+                    $creditAmount = $refundItem['UnitPrice'] * $refundItem['action_qty'];
+                    $creditTitle =  '-' . $refundItem['action_qty'] . 'x ' . $refundItem['ArticleNumber'];
+
+                    if (sizeof($reduceCreditBy)) {
+                        $creditTitle .=  ' - '.$reduceCreditBy['name'] . '('. $reduceCreditBy['amount'] .')';
+                        $creditAmount -= $reduceCreditBy['amount'];
+                    }
+
+                    $refundRow   = WebPayItem::orderRow()
+                        ->setAmountIncVat($creditAmount)
+                        ->setName($creditTitle)
+                        ->setVatPercent($refundItem['VatPercent']);
+                    $creditOrder->addCreditOrderRow($refundRow);
+
+                    $reduceCreditBy = [];
+                }
+                if(isset($creditOrder)) {
+                    $creditOrder->creditCheckoutOrderWithNewOrderRow()->doRequest();
+                }
             }
         }
 
         $sveaOrder = $this->_getCheckoutOrder($order);
 
         return new Varien_Object($sveaOrder);
+    }
+
+    /**
+    * Void payment.
+    *
+    * @param $payment
+    *
+    * @return bool=false|string=json
+    * @throws Mage_Adminhtml_Exception
+    */
+    public function void($payment)
+    {
+        $order                  = $payment->getOrder();
+        $sveaOrderId            = (int)$order->getPaymentReference();
+        $sveaOrder              = $this->_getCheckoutOrder($order);
+        $sveaConfig             = $this->getSveaConfig();
+
+        $canCancel = in_array($this::SVEA_CAN_CANCEL_ORDER, $sveaOrder['Actions']);
+
+        if ($canCancel) {
+
+            $request = WebPayAdmin::cancelOrder($sveaConfig)
+                ->setCheckoutOrderId($sveaOrderId);
+
+            $response = $request->cancelCheckoutOrder()->doRequest();
+
+            return $response;
+        } else {
+            throw new Mage_Adminhtml_Exception(
+                'Cannot void.'
+            );
+
+            return false;
+        }
     }
 
     /**
@@ -350,7 +473,6 @@ class Svea_Checkout_Model_Payment_Api_Invoice
             return false;
         }
 
-
         foreach ($itemCollection as $item) {
             $prefix     = '';
             if (isset($referenceNumber)) {
@@ -362,19 +484,22 @@ class Svea_Checkout_Model_Payment_Api_Invoice
             }
 
             if ($item->getDiscountAmount()) {
-                $sku     = substr(sprintf('discount-%s', $prefix . trim($orderItem->getQuoteItemId())), 0,40);
-                $items[] = [
-                    'sku'   => $sku,
-                    'qty'   => 1,
-                    'Price' => $item->getDiscountAmount()
+                $prefixedSku = sprintf($prefix.'discount-%s',  trim($orderItem->getQuoteItemId()));
+                $sku         = substr($prefixedSku, 0, 40);
+                $items[]     = [
+                    'sku'         => $sku,
+                    'qty'         => 1,
+                    'Price'       => $item->getDiscountAmount(),
+                    'newDiscount' => $item->getDiscountAmount(),
                 ];
             }
 
             if ($item->getQty()) {
                 $items[] = [
-                    'sku'   => $prefix . $item->getSku(),
-                    'qty'   => $item->getQty(),
-                    'Price' => $item->getPriceInclTax()
+                    'sku'         => $prefix . $item->getSku(),
+                    'qty'         => $item->getQty(),
+                    'Price'       => $item->getPriceInclTax(),
+                    'newDiscount' => $orderItem->getDiscountAmount(),
                 ];
             }
         }
@@ -383,21 +508,24 @@ class Svea_Checkout_Model_Payment_Api_Invoice
             if (isset($row['ArticleNumber'])) {
                 $itemKey = array_search($row['ArticleNumber'], array_column($items, 'sku'));
                 if (false !== $itemKey) {
-                    $chosenItems[$key] = $row;
-                    $qty = $items[$itemKey]['qty'];
+                    $chosenItems[$key]               = $row;
+                    $qty                             = $items[$itemKey]['qty'];
                     $chosenItems[$key]['action_qty'] = (float)$qty;
+                    $chosenItems[$key]['newDiscount'] = (float)$items[$itemKey]['newDiscount'];
                 }
             } else {
                 $itemKey = array_search($row['Name'], array_column($items, 'sku'));
                 if (in_array($row['Name'], array_column($items, 'sku'))) {
-                    $chosenItems[$key] = $row;
-                    $qty = $items[$itemKey]['qty'];
+                    $chosenItems[$key]               = $row;
+                    $qty                             = $items[$itemKey]['qty'];
                     $chosenItems[$key]['action_qty'] = (float)$qty;
+                    $chosenItems[$key]['newDiscount'] = (float)$items[$itemKey]['newDiscount'];
                 }
             }
             if ($shippingMethod && $shippingMethod == $row['Name']) {
-                $chosenItems[$key] = $row;
+                $chosenItems[$key]               = $row;
                 $chosenItems[$key]['action_qty'] = 1;
+                $chosenItems[$key]['newDiscount'] = (float)0;
             }
         }
 

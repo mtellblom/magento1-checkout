@@ -114,6 +114,13 @@ class Svea_Checkout_Model_Payment_CreateOrder
         $billingAddress = new Varien_Object($data->getData('BillingAddress'));
         $shippingAddress = new Varien_Object($data->getData('ShippingAddress'));
 
+        $customer = new Varien_Object($data->getData('Customer'));
+
+        if ($customer->getData('IsCompany') == true) {
+            $billingCompany  = $billingAddress->getData('FullName');
+            $shippingCompany = $shippingAddress->getData('FullName');
+        }
+
         $billingFirstname = ($billingAddress->getData('FirstName'))
             ? $billingAddress->getData('FirstName')
             : $billingAddress->getData('FullName');
@@ -170,6 +177,13 @@ class Svea_Checkout_Model_Payment_CreateOrder
             'country_id' => strtoupper($shippingAddress->getData('CountryCode')),
             'telephone'  => $data->getData('PhoneNumber'),
         ];
+
+        if (isset($billingCompany)) {
+            $billingAddressData['company'] = $billingCompany;
+        }
+        if (isset($shippingCompany)) {
+            $shippingAddressData['company'] = $shippingCompany;
+        }
 
         $quote->getBillingAddress()->addData($billingAddressData);
         $quote->getShippingAddress()->addData($shippingAddressData)

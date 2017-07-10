@@ -79,7 +79,8 @@ class Svea_Checkout_Helper_Payment_Order_Transaction
             $transaction = $this->_getTransaction()
                 ->setOrderPaymentObject($this->_getPayment())
                 ->setTxnType($this->_getType())
-                ->setTxnId($this->_getId());
+                ->setTxnId($this->_getId())
+                ->setIsClosed(false);
 
             if ($this->_getData()) {
                 $transaction->setAdditionalInformation(

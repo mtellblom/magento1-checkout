@@ -19,9 +19,9 @@ class Svea_Checkout_Helper_Transaction
      * @param \Svea\WebPay\BuildOrder $sveaOrder Svea Order Object
      * @param string                  $type Constant transaction type
      * @param int                     $id   Transaction ID
-     *
+     * @param bool                    $status
      */
-    public function createTransaction($order, $sveaOrder, $type, $id)
+    public function createTransaction($order, $sveaOrder, $type, $id, $status=0)
     {
         $transaction = Mage::getModel('sales/order_payment_transaction');
 
@@ -32,6 +32,7 @@ class Svea_Checkout_Helper_Transaction
             ->setTxnId($id)
             ->setMergeWithPaymentInformationData(true)
             ->setOrderPaymentObject($payment)
+            ->setIsClosed($status)
             ->setAdditionalInformation(
                 Mage_Sales_Model_Order_Payment_Transaction::RAW_DETAILS,
                 $flatData
