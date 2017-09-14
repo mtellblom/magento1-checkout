@@ -27,12 +27,6 @@ class Svea_Checkout_PushController
 
             return $this->reportAndReturn(404, "QueueItem {$quoteId} not found in queue.");
         }
-
-        if ($orderQueueItem->getState() == $orderQueueItem::SVEA_QUEUE_STATE_OK) {
-
-            return $this->reportAndReturn(208, "QueueItem {$quoteId} already handled.");
-        }
-
         try {
             $quote = $this->_getQuoteById($quoteId);
             $storeId = $quote->getStoreId();
@@ -58,8 +52,24 @@ class Svea_Checkout_PushController
                 case 'created':
                     return $this->reportAndReturn(402, $quoteId . ' : is only in created state.');
                 case 'cancelled':
+                    if ($orderQueueItem->getOrderId()) {
+                        $order = Mage::getModel('sales/order')->load($orderQueueItem->getOrderId());
+
+                        if ($order->canCancel()) {
+                            $order->cancel()
+                                ->save();
+
+                            $orderQueueItem->delete();
+                        }
+                    }
                     return $this->reportAndReturn(410, $quoteId . ' : is cancelled in Sveas end.');
             }
+
+            if ($orderQueueItem->getState() == $orderQueueItem::SVEA_QUEUE_STATE_OK) {
+
+                return $this->reportAndReturn(208, "QueueItem {$quoteId} already handled.");
+            }
+
 
             if ($svea->sveaOrderHasErrors($sveaOrder, $quote, $response)) {
 
