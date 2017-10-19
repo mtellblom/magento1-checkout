@@ -42,7 +42,8 @@ class Svea_Checkout_Model_Payment_Api_Invoice
         $shippingMethod         = '';
         $canPartiallyProcess    = in_array($this::SVEA_IS_PARTIALLY_INVOICEABLE, $sveaOrder['Actions']);
 
-        if (!in_array('CanDeliverOrder', $sveaOrder['Actions'])) {
+
+        if (!in_array($this::SVEA_IS_INVOICEABLE, $sveaOrder['Actions'])) {
             throw new Mage_Adminhtml_Exception(
                 'Svea responded: order not billable. '.
                 'Order status: ' . $sveaOrder['OrderStatus']
@@ -59,12 +60,23 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                 ->fetchNewIncrementId($invoice->getStore()->getId());
         $invoice->setIncrementId($invoiceIncrementId);
 
-        $deliverItems = $this->_getActionRows(
-            $paymentItems,
-            $sveaOrder['OrderRows'],
-            $shippingMethod,
-            ['CanDeliverRow', 'CanUpdateRow']
-        );
+        if (!$canPartiallyProcess) {
+            $deliverItems = $this->_getActionRows(
+                $paymentItems,
+                $sveaOrder['OrderRows'],
+                $shippingMethod,
+                []
+            );
+        } else {
+
+            $deliverItems = $this->_getActionRows(
+                $paymentItems,
+                $sveaOrder['OrderRows'],
+                $shippingMethod,
+                ['CanDeliverRow', 'CanUpdateRow']
+            );
+
+        }
 
         if (!sizeof($sveaOrder['OrderRows'])) {
             throw new Mage_Adminhtml_Exception(
@@ -522,7 +534,11 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                     $chosenItems[$key]['newDiscount'] = (float)$items[$itemKey]['newDiscount'];
                 }
             }
-            if ($shippingMethod && $shippingMethod == $row['Name']) {
+
+            if (
+                ($shippingMethod && $shippingMethod == $row['Name'])
+                || (empty($shippingMethod) && $row['UnitPrice'] == 0  && !$row['ArticleNumber'])
+            ) {
                 $chosenItems[$key]               = $row;
                 $chosenItems[$key]['action_qty'] = 1;
                 $chosenItems[$key]['newDiscount'] = (float)0;
