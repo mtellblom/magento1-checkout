@@ -110,72 +110,84 @@ class Svea_Checkout_Model_Payment_CreateOrder
     {
         //ZeroWidthSpace
         $notNull = html_entity_decode('&#8203;');
-
-        $billingAddress = new Varien_Object($data->getData('BillingAddress'));
-        $shippingAddress = new Varien_Object($data->getData('ShippingAddress'));
-
-        $customer = new Varien_Object($data->getData('Customer'));
-
-        if ($customer->getData('IsCompany') == true) {
-            $billingCompany  = $billingAddress->getData('FullName');
-            $shippingCompany = $shippingAddress->getData('FullName');
-        }
-
+        $billingAddress   = new Varien_Object($data->getData('BillingAddress'));
+        $shippingAddress  = new Varien_Object($data->getData('ShippingAddress'));
+        $customer         = new Varien_Object($data->getData('Customer'));
+        $reference        = ($data->getData('CustomerReference'))
+                          ? ($data->getData('CustomerReference'))
+                          : false;
         $billingFirstname = ($billingAddress->getData('FirstName'))
-            ? $billingAddress->getData('FirstName')
-            : $billingAddress->getData('FullName');
-
+                          ? $billingAddress->getData('FirstName')
+                          : $notNull;
         $billingFirstname = ($billingFirstname)
-            ? $billingFirstname
-            : $notNull;
+                          ? $billingFirstname
+                          : $notNull;
+        if (true == $customer->getData('IsCompany')) {
+            $billingCompany   = $billingAddress->getData('FullName');
+            $shippingCompany  = $shippingAddress->getData('FullName');
+            $billingFirstname = ($reference)
+                              ? $reference
+                              : $notNull;
+        }
+        $billingLastname  = ($billingAddress->getData('LastName'))
+                          ? $billingAddress->getData('LastName')
+                          : $notNull;
 
-        $billingLastname = ($billingAddress->getData('LastName'))
-            ? $billingAddress->getData('LastName')
-            : $notNull;
+        $street = implode(
+            "\n",
+            [
+                $billingAddress->getData('StreetAddress'),
+                $billingAddress->getData('CoAddress'),
+            ]
+        );
+        $street  = ($street) ? $street : $notNull;
+        $city    = $billingAddress->getData('City');
+        $city    = $city ? $city : $notNull;
+        $zip     = $billingAddress->getData('PostalCode');
+        $zip     = $zip ? $zip : $notNull;
+        $phone   = ($data->getData('PhoneNumber'));
+        $phone   = $phone ? $phone : $notNull;
+        $country = strtoupper($billingAddress->getData('CountryCode'));
+        $country = $country ? $country : $notNull;
 
         $billingAddressData = [
             'firstname'  => $billingFirstname,
             'lastname'   => $billingLastname,
-            'street'     => implode(
-                "\n",
-                [
-                    $billingAddress->getData('StreetAddress'),
-                    $billingAddress->getData('CoAddress'),
-                ]
-            ),
-            'city'       => $billingAddress->getData('City'),
-            'postcode'   => $billingAddress->getData('PostalCode'),
-            'telephone'  => $data->getData('PhoneNumber'),
-            'country_id' => strtoupper($billingAddress->getData('CountryCode')),
+            'street'     => $street,
+            'city'       => $city,
+            'postcode'   => $zip,
+            'telephone'  => $phone,
+            'country_id' => $country,
         ];
 
-        $shippingFirstname = ($shippingAddress->getData('FirstName'))
-            ? $shippingAddress->getData('FirstName')
-            : $shippingAddress->getData('FullName');
-
-        $shippingFirstname = ($shippingFirstname)
-            ? $shippingFirstname
-            : $notNull;
+        if (true == $customer->getData('IsCompany') && $reference) {
+            $shippingFirstname = $reference;
+        } else {
+            $shippingFirstname = ($shippingAddress->getData('FirstName'))
+                               ? $shippingAddress->getData('FirstName')
+                               : $notNull;
+        }
 
         $shippingLastname = $shippingAddress->getData('LastName')
-            ? $shippingAddress->getData('LastName')
-            : $notNull;
+                          ? $shippingAddress->getData('LastName')
+                          : $notNull;
+
+        $street  = ($street) ? $street : $notNull;
+        $city    = $shippingAddress->getData('City');
+        $city    = ($city) ? $city : $notNull;
+        $zip     = $shippingAddress->getData('PostalCode');
+        $zip     = ($zip) ? $zip : $notNull;
+        $country = strtoupper($shippingAddress->getData('CountryCode'));
+        $country = ($country) ? $country : $notNull;
 
         $shippingAddressData = [
-            'firstname' => $shippingFirstname,
-            'lastname'  => $shippingLastname,
-
-            'street'     => implode(
-                "\n",
-                [
-                    $shippingAddress->getData('StreetAddress'),
-                    $shippingAddress->getData('CoAddress'),
-                ]
-            ),
-            'city'       => $shippingAddress->getData('City'),
-            'postcode'   => $shippingAddress->getData('PostalCode'),
-            'country_id' => strtoupper($shippingAddress->getData('CountryCode')),
-            'telephone'  => $data->getData('PhoneNumber'),
+            'firstname'  => $shippingFirstname,
+            'lastname'   => $shippingLastname,
+            'street'     => $street,
+            'city'       => $city,
+            'postcode'   => $zip,
+            'country_id' => $country,
+            'telephone'  => $phone,
         ];
 
         if (isset($billingCompany)) {
@@ -189,8 +201,11 @@ class Svea_Checkout_Model_Payment_CreateOrder
         $quote->getShippingAddress()->addData($shippingAddressData)
             ->setCollectShippingRates(true);
 
-        $quote->setCustomerEmail($data->getData('EmailAddress'));
-        $quote->setCustomerFirstname($shippingAddress->getFirstName());
-        $quote->setCustomerLastname($shippingAddress->getLastName());
+        $email = $data->getData('EmailAddress');
+        $email = ($email) ? $email : $notNull;
+
+        $quote->setCustomerEmail($email);
+        $quote->setCustomerFirstname($shippingFirstname);
+        $quote->setCustomerLastname($shippingLastname);
     }
 }
