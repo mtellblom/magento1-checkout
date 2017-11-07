@@ -67,7 +67,8 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      * @param $fakeOrderRows
      * @param $orderRows
      */
-    protected function _diffOrderRows($fakeOrderRows, $orderRows) {
+    protected function _diffOrderRows($fakeOrderRows, $orderRows)
+    {
         $helper = Mage::helper('sveacheckout');
         $differenceBetweenArrays = $helper->compareQuoteToSveaOrder($fakeOrderRows, $orderRows);
 
