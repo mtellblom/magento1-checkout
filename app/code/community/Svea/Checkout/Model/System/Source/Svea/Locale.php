@@ -15,6 +15,7 @@ class Svea_Checkout_Model_System_Source_Svea_Locale
      * @var string
      */
     const LOCALE_SV_SE = 'sv-SE';
+    const LOCALE_NN_NO = 'nn-NO';
 
     /**
      * Creates an option array with supported combinations of languages,
@@ -29,6 +30,11 @@ class Svea_Checkout_Model_System_Source_Svea_Locale
                 'label' => Mage::helper('sveacheckout')->__('Sweden'),
                 'title' => Mage::helper('sveacheckout')->__('Sweden'),
                 'value' => serialize($this->getOption(self::LOCALE_SV_SE)),
+            ],
+            [
+                'label' => Mage::helper('sveacheckout')->__('Norway'),
+                'title' => Mage::helper('sveacheckout')->__('Norway'),
+                'value' => serialize($this->getOption(self::LOCALE_NN_NO)),
             ],
         ];
     }
@@ -48,6 +54,13 @@ class Svea_Checkout_Model_System_Source_Svea_Locale
                     'locale'            => $locale,
                     'purchase_country'  => 'SE',
                     'purchase_currency' => 'SEK',
+                ];
+
+            case self::LOCALE_NN_NO:
+                return [
+                    'locale'            => $locale,
+                    'purchase_country'  => 'NO',
+                    'purchase_currency' => 'NOK',
                 ];
         }
 
