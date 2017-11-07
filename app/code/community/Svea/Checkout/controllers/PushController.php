@@ -59,10 +59,11 @@ class Svea_Checkout_PushController
                             $order->cancel()
                                 ->save();
 
-                            $orderQueueItem->delete();
+                            $orderQueueItem->delete()
+                                ->save();
                         }
                     }
-                    return $this->reportAndReturn(410, $quoteId . ' : is cancelled in Sveas end.');
+                    return $this->reportAndReturn(410, $quoteId . ' : is cancelled in Svea:s end.');
             }
 
             if ($orderQueueItem->getState() == $orderQueueItem::SVEA_QUEUE_STATE_OK) {
