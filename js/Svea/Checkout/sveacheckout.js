@@ -392,6 +392,20 @@ SveaCheckout.prototype = {
         window.scoApi.setCheckoutEnabled(true);
       }
     }.bind(this));
+
+    /**
+     * Observe the validationresult, check for last error message, if found display it.
+     */
+    document.addEventListener("checkoutReady", function() {
+      window.scoApi.observeModel('validation.result', function() {
+        jQuery.getJSON('/sveacheckout/index/getlasterror', function (data) {
+          if(data) {
+            this.showMessage(data, 'error');
+          }
+        }.bind(this));
+        window.scoApi.setCheckoutEnabled(true);
+      }.bind(this));
+    }.bind(this));
   },
 
   showMessage: function (message, type) {
@@ -405,5 +419,5 @@ SveaCheckout.prototype = {
         messageBox.fade().addClassName('hide');
       }, this.opt.messageTimeout);
     }
-  }
+  },
 };

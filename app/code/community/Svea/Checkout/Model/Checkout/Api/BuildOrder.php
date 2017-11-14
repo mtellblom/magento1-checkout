@@ -50,8 +50,8 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
 
             try {
                 $updatedOrder = $sveaOrder->setCheckoutOrderId((int)$response['OrderId'])->updateOrder();
-                return $this->sveaOrderHasErrors($sveaOrder, $quote, $updatedOrder, $tries + 1);
 
+                return $this->sveaOrderHasErrors($sveaOrder, $quote, $updatedOrder, $tries + 1);
             } catch (Exception $e) {
 
                 return true;
@@ -107,9 +107,10 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      */
     protected function _setupOrderConfig($sveaOrder, $quote)
     {
-        $quoteId         = $quote->getId();
-        $storeId         = Mage::app()->getStore()->getId();
-        $mode            = Mage::getStoreConfig('payment/SveaCheckout/testmode', $storeId) ? 'test' : 'prod';
+        $quoteId = $quote->getId();
+        $storeId = Mage::app()->getStore()->getId();
+        $mode    = Mage::getStoreConfig('payment/SveaCheckout/testmode', $storeId) ? 'test' : 'prod';
+        $secret  = urlencode(Mage::getModel('Core/Encryption')->encrypt($quoteId));
 
         $pushParams      = [
             'quoteId' => $quoteId,
@@ -120,7 +121,13 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
             $pushParams['sveaId'] = $quote->getPaymentReference();
         }
 
-        $pushUri          = Mage::getUrl('sveacheckout/push', $pushParams);
+        $validationParams = array_merge(
+            $pushParams,
+            ['secret' => $secret]
+        );
+
+        $pushUri          = Mage::getUrl('sveacheckout/push',       $pushParams);
+        $validationUri    = Mage::getUrl('sveacheckout/validation', $validationParams);
         $termsUri         = Mage::getUrl('sveacheckout/index/terms', ['quoteId' => $quoteId]);
 
         //payment_SveaCheckout_override_terms_uri
@@ -139,8 +146,8 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         }
 
         if ($overridePush && !empty($overridePushUri)) {
-            $params  = str_replace('=', '/', http_build_query($pushParams, '', '/'));
-            $pushUri = $overridePushUri . $params .'/';
+            $pushUri       = str_replace(Mage::getBaseUrl(), $overridePushUri, $pushUri);
+            $validationUri = str_replace(Mage::getBaseUrl(), $overridePushUri, $validationUri);
         }
 
         //To avoid order already being created, if you for example have
@@ -153,6 +160,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
 
         $sveaOrder->setClientOrderNumber($clientId)
             ->setCheckoutUri(Mage::getUrl('sveacheckout/index', ['quoteId' => $quoteId, 'reactivate'=>'true']))
+            ->setValidationCallBackUri($validationUri)
             ->setConfirmationUri(Mage::getUrl('sveacheckout/index/success', ['quoteId' => $quoteId]))
             ->setPushUri($pushUri)
             ->setTermsUri($termsUri);

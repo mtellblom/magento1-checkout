@@ -71,9 +71,11 @@ class Svea_Checkout_Model_Payment_CreateOrder
         } catch (Exception $e) {
             $adapter->rollback();
 
+            $pushResponse = array_merge($orderData->getData(), ['lastErrorMessage' => $e->getMessage()]);
+
             $orderQueueItem
                 ->setQuoteId($quote->getId())
-                ->setPushResponse($orderData->getData())
+                ->setPushResponse($pushResponse)
                 ->setState($orderQueueItem::SVEA_QUEUE_STATE_ERR)
                 ->save();
 

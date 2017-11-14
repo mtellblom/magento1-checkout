@@ -91,6 +91,18 @@ class Svea_Checkout_IndexController
         }
     }
 
+    public function getLastErrorAction() {
+        $session         = Mage::getSingleton('checkout/session');
+        $quoteId         = $session->getQuote()->getId();
+        $orderQueueItem  = Mage::getModel('sveacheckout/queue')->load($quoteId, 'quote_id');
+        $response        = json_decode($orderQueueItem->getPushResponse());
+
+        if (isset($response->lastErrorMessage)) {
+
+            print json_encode($response->lastErrorMessage);
+        }
+    }
+
     /**
      * Index endpoint, collect data, and go through steps to validate and create an order.
      *

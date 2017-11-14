@@ -207,9 +207,9 @@
                                 <push_uri translate="label comment" module="sveacheckout">
                                     <label>Override pushURI</label>
                                     <comment><![CDATA[
-                                        including trailing slash.
+                                        Will replace base-URL.
                                         <strong>For example:
-                                            https://project.user.server.tld/sveacheckout/push/index/
+                                            https://project.user.server.tld/
                                         </strong>
                                         <br/>
                                         Useful for development and debugging.
