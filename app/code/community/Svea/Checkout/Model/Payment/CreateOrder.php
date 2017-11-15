@@ -174,6 +174,14 @@ class Svea_Checkout_Model_Payment_CreateOrder
                           ? $shippingAddress->getData('LastName')
                           : $notNull;
 
+        $street = implode(
+            "\n",
+            [
+                $shippingAddress->getData('StreetAddress'),
+                $shippingAddress->getData('CoAddress'),
+            ]
+        );
+
         $street  = ($street) ? $street : $notNull;
         $city    = $shippingAddress->getData('City');
         $city    = ($city) ? $city : $notNull;
