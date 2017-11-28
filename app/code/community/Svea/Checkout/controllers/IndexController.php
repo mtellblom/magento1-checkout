@@ -56,6 +56,8 @@ class Svea_Checkout_IndexController
         ) {
 
             return $oldQuote;
+        } else {
+            $sveaOrderId = null;
         }
 
         $quote = Mage::getModel('sales/quote')->setStore(Mage::app()->getStore());
@@ -70,8 +72,16 @@ class Svea_Checkout_IndexController
             ->unsLastRealOrderId();
         $sveaOrder = $svea->createSveaOrderFromQuote($quote);
 
+        //Create a new order in Sveas end, to reset URIs.
+        if (!$sveaOrderId) {
+            $response = $sveaOrder->createOrder();
+            $sveaOrderId = $response['OrderId'];
+            $quote->setPaymentReference($sveaOrderId)->save();
+        }
+
         //Fetch Order
         $response = $sveaOrder->setCheckoutOrderId((int)$sveaOrderId)->getOrder();
+
         //Run update.
         $hasErrors = $svea->sveaOrderHasErrors($sveaOrder, $quote, $response);
         if(!$hasErrors) {
