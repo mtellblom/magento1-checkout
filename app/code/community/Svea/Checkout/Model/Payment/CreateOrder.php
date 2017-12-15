@@ -115,8 +115,8 @@ class Svea_Checkout_Model_Payment_CreateOrder
         $billingAddress   = new Varien_Object($data->getData('BillingAddress'));
         $shippingAddress  = new Varien_Object($data->getData('ShippingAddress'));
         $customer         = new Varien_Object($data->getData('Customer'));
-        $reference        = ($data->getData('CustomerReference'))
-                          ? ($data->getData('CustomerReference'))
+        $reference        = ($customer->getData('CustomerReference'))
+                          ? ($customer->getData('CustomerReference'))
                           : false;
         $billingFirstname = ($billingAddress->getData('FirstName'))
                           ? $billingAddress->getData('FirstName')
