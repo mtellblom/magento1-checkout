@@ -83,6 +83,11 @@ class Svea_Checkout_Model_Payment_Acknowledge
                 ->setState(Mage_Sales_Model_Order::STATE_NEW, $status, $message, false)
                 ->save();
             $magentoOrder->getSendConfirmation(null);
+
+            if (empty(trim($magentoOrder->getCustomerEmail())) && !empty($sveaData->getData('EmailAddress'))) {
+                $magentoOrder->setCustomerEmail($sveaData->getData('EmailAddress'));
+            }
+
             $magentoOrder->sendNewOrderEmail();
 
             $orderQueueItem = Mage::getModel('sveacheckout/queue')->load($quote->getId(), 'quote_id');
@@ -116,6 +121,7 @@ class Svea_Checkout_Model_Payment_Acknowledge
 
             $payment->setAdditionalInformation($info)->save();
             $payment->setTransactionId("{$id}-{$type}");
+            $magentoOrder->save();
 
             $adapter->commit();
             $logger->writeToLog('Payment transaction was created for order ' . $magentoOrder->getId());
