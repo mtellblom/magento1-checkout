@@ -70,12 +70,16 @@ class Svea_Checkout_Model_Payment_Acknowledge
 
             $svea         = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
             $sveaOrder    = $svea->setupCommunication();
-
-            $status       = Mage::getStoreConfig('payment/SveaCheckout/order_status_after_acknowledge');
-            $message      = $helper->__("Order was acknowledged by Svea.");
             $sveaData     = new Varien_Object(
                 $sveaOrder->setCheckoutOrderId((int)$quote->getPaymentReference())->getOrder()
             );
+
+            if (empty(trim($magentoOrder->getCustomerEmail())) && !empty($sveaData->getData('EmailAddress'))) {
+                $magentoOrder->setCustomerEmail($sveaData->getData('EmailAddress'));
+            }
+
+            $status       = Mage::getStoreConfig('payment/SveaCheckout/order_status_after_acknowledge');
+            $message      = $helper->__("Order was acknowledged by Svea.");
 
             $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);
 
@@ -83,10 +87,6 @@ class Svea_Checkout_Model_Payment_Acknowledge
                 ->setState(Mage_Sales_Model_Order::STATE_NEW, $status, $message, false)
                 ->save();
             $magentoOrder->getSendConfirmation(null);
-
-            if (empty(trim($magentoOrder->getCustomerEmail())) && !empty($sveaData->getData('EmailAddress'))) {
-                $magentoOrder->setCustomerEmail($sveaData->getData('EmailAddress'));
-            }
 
             $magentoOrder->sendNewOrderEmail();
 
