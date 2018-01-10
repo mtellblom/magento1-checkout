@@ -74,7 +74,11 @@ class Svea_Checkout_Model_Payment_Acknowledge
                 $sveaOrder->setCheckoutOrderId((int)$quote->getPaymentReference())->getOrder()
             );
 
-            if (empty(trim($magentoOrder->getCustomerEmail())) && !empty($sveaData->getData('EmailAddress'))) {
+            if (
+                $magentoOrder->getCustomerEmail() == html_entity_decode('&#8203;')
+                && !empty($sveaData->getData('EmailAddress'))
+            ) {
+
                 $magentoOrder->setCustomerEmail($sveaData->getData('EmailAddress'));
             }
 
