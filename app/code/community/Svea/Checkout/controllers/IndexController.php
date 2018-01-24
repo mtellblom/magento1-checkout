@@ -370,6 +370,16 @@ class Svea_Checkout_IndexController
             $quote = Mage::getModel('sales/quote')->load($quoteId);
         }
 
+        $orderIDs = Mage::getResourceModel('sales/order_collection')
+            ->addFieldToFilter('increment_id', ['eq' => $quote->getReservedOrderId()])
+            ->getAllIds();
+
+        $this->loadLayout();
+        $analytics = $this->getLayout()
+            ->getBlock('google_analytics')
+            ->setOrderIds($orderIDs)->toHtml();
+
+
         if (!$orderId && !$quote->getId()) {
             $session->setSveaEncounteredError(true);
             $session->addError(
@@ -396,8 +406,8 @@ class Svea_Checkout_IndexController
                 ->getOrder();
             if (isset($response['Gui'])) {
                 if (isset($response['Gui']['Snippet'])) {
-                    $snippet = $response['Gui']['Snippet'];
-                    $this->_renderSnippet($snippet);
+                    $html = $response['Gui']['Snippet'] . $analytics;
+                    $this->_renderSnippet($html);
                 }
             }
         } catch (Exception $ex) {

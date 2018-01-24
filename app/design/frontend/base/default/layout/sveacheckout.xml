@@ -57,6 +57,11 @@
             </block>
         </reference>
     </sveacheckout_index_index>
+    <sveacheckout_index_success>
+        <reference name="head">
+            <action method="unsetChild"><name>google_analytics</name></action>
+        </reference>
+    </sveacheckout_index_success>
 
     <sveacheckout_index_terms>
         <reference name="root">
