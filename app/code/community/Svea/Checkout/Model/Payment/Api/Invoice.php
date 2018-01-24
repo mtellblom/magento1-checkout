@@ -42,8 +42,11 @@ class Svea_Checkout_Model_Payment_Api_Invoice
         $shippingMethod         = '';
         $canPartiallyProcess    = in_array($this::SVEA_IS_PARTIALLY_INVOICEABLE, $sveaOrder['Actions']);
 
-
         if (!in_array($this::SVEA_IS_INVOICEABLE, $sveaOrder['Actions'])) {
+            if ($sveaOrder['orderStatus'] == 'Delivered') {
+                return new Varien_Object($sveaOrder);
+            }
+
             throw new Mage_Adminhtml_Exception(
                 'Svea responded: order not billable. '.
                 'Order status: ' . $sveaOrder['OrderStatus']
