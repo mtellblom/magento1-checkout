@@ -156,7 +156,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         $separator = '_';
         $lengthOfHash  = $allowedLength - (strlen((string)$quoteId) + strlen($separator));
         $hashedBaseUrl = sha1(Mage::getBaseUrl());
-        $clientId      = mb_substr($hashedBaseUrl, 0, $lengthOfHash) . $separator . $quoteId;
+        $clientId      = $quoteId . $separator . mb_substr($hashedBaseUrl, 0, $lengthOfHash);
 
         $sveaOrder->setClientOrderNumber($clientId)
             ->setCheckoutUri(Mage::getUrl('sveacheckout/index', ['quoteId' => $quoteId, 'reactivate'=>'true']))

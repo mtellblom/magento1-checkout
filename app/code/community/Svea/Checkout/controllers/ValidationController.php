@@ -161,7 +161,7 @@ class Svea_Checkout_ValidationController
         $separator = '_';
         $lengthOfHash  = $allowedLength - (strlen((string)$incrementId) + strlen($separator));
         $hashedBaseUrl = sha1(Mage::getBaseUrl());
-        $clientId      = mb_substr($hashedBaseUrl, 0, $lengthOfHash) . $separator . $incrementId;
+        $clientId      = $incrementId . $separator . mb_substr($hashedBaseUrl, 0, $lengthOfHash);
 
         return $clientId;
     }
