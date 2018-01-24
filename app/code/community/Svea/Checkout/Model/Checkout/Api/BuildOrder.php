@@ -156,7 +156,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         $separator = '_';
         $lengthOfHash  = $allowedLength - (strlen((string)$quoteId) + strlen($separator));
         $hashedBaseUrl = sha1(Mage::getBaseUrl());
-        $clientId = substr($hashedBaseUrl, 0, $lengthOfHash) . $separator . $quoteId;
+        $clientId      = mb_substr($hashedBaseUrl, 0, $lengthOfHash) . $separator . $quoteId;
 
         $sveaOrder->setClientOrderNumber($clientId)
             ->setCheckoutUri(Mage::getUrl('sveacheckout/index', ['quoteId' => $quoteId, 'reactivate'=>'true']))
@@ -303,13 +303,13 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
                 ->setVatPercent((int)round($item->getTaxPercent()))
                 ->setQuantity((float)round($qty, 2))
                 ->setArticleNumber($prefix . $item->getSku())
-                ->setName((string)substr($item->getName(), 0, 40))
+                ->setName((string)mb_substr($item->getName(), 0, 40))
                 ->setTemporaryReference((string)$item->getId());
             $sveaOrder->addOrderRow($orderRowItem);
 
             if ((float)$item->getDiscountAmount()) {
                 $itemRowDiscount = WebPayItem::fixedDiscount()
-                    ->setName(substr(sprintf('discount-%s', $prefix . $item->getId()), 0, 40))
+                    ->setName(mb_substr(sprintf('discount-%s', $prefix . $item->getId()), 0, 40))
                     ->setVatPercent((int)round($item->getTaxPercent()))
                     ->setAmountIncVat((float)$item->getDiscountAmount());
 
@@ -388,7 +388,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         $shipping       = $quote->getShippingAddress();
         $vatPercent     = 0;
         $shippingTitle  = ($methodTitle)
-                        ? substr($methodTitle, 0, 40)
+                        ? mb_substr($methodTitle, 0, 40)
                         : Mage::helper('sveacheckout')->__('Shipping');
         $shippingPrice  = ($didNotLoadFromQuote)
                         ? $fallbackPrice
@@ -508,7 +508,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         foreach ($totals as $totalRow) {
             $amount = round($totalRow->getValue(), 2);
             $title = ($totalRow->getTitle())
-                ? substr($totalRow->getTitle(), 0, 40)
+                ? mb_substr($totalRow->getTitle(), 0, 40)
                 : Mage::helper('sveacheckout')->__('fee');
 
             $fee = WebPayItem::invoiceFee()

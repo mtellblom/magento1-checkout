@@ -263,7 +263,7 @@ class Svea_Checkout_Block_Adminhtml_Queue
 
             $this->_addOrderRow([
                 'ArticleNumber'      => $prefix . $item->getSku(),
-                'Name'               => (string)substr($item->getName(), 0, 40),
+                'Name'               => (string)mb_substr($item->getName(), 0, 40),
                 'Quantity'           => (float)round($item->getQty(), 2),
                 'UnitPrice'          => (float)$item->getPriceInclTax(),
                 'VatPercent'         => (int)round($item->getTaxPercent()),
@@ -274,7 +274,7 @@ class Svea_Checkout_Block_Adminhtml_Queue
             if ((float)$item->getDiscountAmount()) {
                 $this->_addOrderRow([
                     'ArticleNumber'      => (sprintf('discount-%s', $prefix . $item->getId())),
-                    'Name'               => (string)substr($item->getName(), 0, 40),
+                    'Name'               => (string)mb_substr($item->getName(), 0, 40),
                     'Quantity'           => 1,
                     'UnitPrice'          => $item->getDiscountAmount() * -1,
                     'VatPercent'         => (int)round($item->getTaxPercent()),
@@ -360,7 +360,7 @@ class Svea_Checkout_Block_Adminhtml_Queue
         $appliedTaxes   = $shipping->getAppliedTaxes();
         $appliedTaxes   = reset($appliedTaxes);
         $shippingTitle = ($shipping->getShippingDescription())
-            ? substr($shipping->getShippingDescription(), 0, 40)
+            ? mb_substr($shipping->getShippingDescription(), 0, 40)
             : Mage::helper('sveacheckout')->__('Shipping');
 
         if (isset($appliedTaxes['percent'])) {
@@ -419,7 +419,7 @@ class Svea_Checkout_Block_Adminhtml_Queue
         foreach ($totals as $totalRow) {
             $amount = round($totalRow->getValue(), 2);
             $title = ($totalRow->getTitle())
-                ? substr($totalRow->getTitle(), 0, 40)
+                ? mb_substr($totalRow->getTitle(), 0, 40)
                 : Mage::helper('sveacheckout')->__('fee');
             $this->_addOrderRow([
                 'Name'       => (string)$title,

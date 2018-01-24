@@ -270,13 +270,13 @@ class Svea_Checkout_Model_Payment_Invoice
                 ->setVatPercent((int)round($item->getTaxPercent()))
                 ->setQuantity((float)round($item->getQty(), 2))
                 ->setArticleNumber($prefix . $item->getSku())
-                ->setName((string)substr($item->getName(), 0, 40));
+                ->setName((string)mb_substr($item->getName(), 0, 40));
 
             $sveaOrder->addOrderRow($orderRowItem);
 
             if ((float)$item->getDiscountAmount()) {
                 $itemRowDiscount = WebPayItem::fixedDiscount()
-                    ->setName(substr(sprintf('discount-%s', $prefix . $item->getId()), 0, 40))
+                    ->setName(mb_substr(sprintf('discount-%s', $prefix . $item->getId()), 0, 40))
                     ->setVatPercent((int)round($item->getTaxPercent()))
                     ->setAmountExVat((float)$item->getDiscountAmount());
 

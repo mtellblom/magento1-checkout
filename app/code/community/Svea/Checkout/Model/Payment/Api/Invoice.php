@@ -497,7 +497,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
             if ($item->getDiscountAmount()) {
                 $prefixedSku = sprintf($prefix.'discount-%s',  trim($orderItem->getQuoteItemId()));
-                $sku         = substr($prefixedSku, 0, 40);
+                $sku         = mb_substr($prefixedSku, 0, 40);
                 $items[]     = [
                     'sku'         => $sku,
                     'qty'         => 1,
