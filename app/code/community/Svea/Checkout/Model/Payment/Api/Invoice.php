@@ -29,6 +29,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
      * @param Mage_Sales_Model_Order_Invoice $invoice
      *
      * @return Varien_Object
+     * @throws Mage_Adminhtml_Exception
      */
     public function processInvoice($payment, $invoice)
     {
@@ -123,13 +124,15 @@ class Svea_Checkout_Model_Payment_Api_Invoice
      * Adjusts quantity and adds new row with the rest of your quantity.
      * Used when you do partial deliveries.
      *
-     * @param array  $item
-     * @param int    $key
-     * @param int    $sveaOrderId
-     * @param string $locale
-     * @param bool   $canPartiallyProcess
+     * @param $item
+     * @param $key
+     * @param $sveaOrderId
+     * @param $locale
+     * @param $orderActions
+     * @param $referenceNumber
      *
-     * @throws \Mage_Adminhtml_Exception
+     * @return string
+     * @throws Mage_Adminhtml_Exception
      */
     protected function _adjustQty(
         $item,
