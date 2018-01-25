@@ -37,7 +37,6 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
         $sveaOrderId            = (int)$order->getPaymentReference();
         $sveaOrder              = $this->_getCheckoutOrder($order);
-
         $locale                 = $this->_getLocale($order);
         $paymentItems           = $invoice->getItemsCollection();
         $shippingMethod         = '';
@@ -111,7 +110,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
         $request = WebPayAdmin::deliverOrderRows($this->getSveaConfig())
             ->setCheckoutOrderId($sveaOrderId)
-            ->setCountryCode($locale['purchase_country'])
+            ->setCountryCode($locale)
             ->setInvoiceDistributionType(DistributionType::POST)
             ->setRowsToDeliver(array_keys($deliverItems));
         $request->deliverCheckoutOrderRows()->doRequest();
@@ -183,7 +182,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
             $addRows = WebPayAdmin::addOrderRows($this->getSveaConfig())
                 ->setCheckoutOrderId($sveaOrderId)
-                ->setCountryCode($locale['purchase_country'])
+                ->setCountryCode($locale)
                 ->addOrderRow($restOfRowQty);
 
 
@@ -232,7 +231,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
             $addRows          = WebPayAdmin::addOrderRows($this->getSveaConfig())
                 ->setCheckoutOrderId($sveaOrderId)
-                ->setCountryCode($locale['purchase_country'])
+                ->setCountryCode($locale)
                 ->addOrderRow($restOfRowQty);
         }
 
@@ -324,7 +323,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                     ->setCheckoutOrderId($sveaOrderId)
                     ->setDeliveryId($deliveryId)
                     ->setInvoiceDistributionType(DistributionType::POST)
-                    ->setCountryCode($locale['purchase_country'])
+                    ->setCountryCode($locale)
                     ->setRowsToCredit(array_keys($fullyRefunded));
                 $creditOrder->creditCheckoutOrderRows()->doRequest();
             }
@@ -351,7 +350,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                         ->setCheckoutOrderId($sveaOrderId)
                         ->setDeliveryId($deliveryId)
                         ->setInvoiceDistributionType(DistributionType::POST)
-                        ->setCountryCode($locale['purchase_country']);
+                        ->setCountryCode($locale);
 
                     $creditAmount = $refundItem['UnitPrice'] * $refundItem['action_qty'];
                     $creditTitle =  '-' . $refundItem['action_qty'] . 'x ' . $refundItem['ArticleNumber'];
@@ -429,7 +428,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
         $request = WebPayAdmin::queryOrder($sveaConfig)
             ->setCheckoutOrderId($sveaOrderId)
-            ->setCountryCode($locale['purchase_country']);
+            ->setCountryCode($locale);
 
         return $request->queryCheckoutOrder()->doRequest();
     }
@@ -464,14 +463,14 @@ class Svea_Checkout_Model_Payment_Api_Invoice
     /**
      * Extracts svea-rows from requested change rows.
      *
-     * @param Mage_Sales_Model_Resource_Order_Creditmemo_Item_Collection
-     *          |Mage_Sales_Model_Resource_Order_Invoice_Item_Collection $itemCollection
-     * @param Array                                                      $sveaItems
-     * @param String                                                     $shippingMethod
-     * @param Array                                                      $requireActions
-     * @param Int     optional                                           $referenceNumber incrementID reference
-     * @return array|bool=false
+     * @param        Mage_Sales_Model_Resource_Order_Creditmemo_Item_Collection
+     *                                |Mage_Sales_Model_Resource_Order_Invoice_Item_Collection $itemCollection
+     * @param Array  $sveaItems
+     * @param String $shippingMethod
+     * @param Array  $requireActions
+     * @param Int    $referenceNumber incrementID reference
      *
+     * @return array|bool
      * @throws \Mage_Adminhtml_Exception
      */
     protected function _getActionRows(
