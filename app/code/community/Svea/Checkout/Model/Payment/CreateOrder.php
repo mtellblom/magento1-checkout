@@ -133,7 +133,7 @@ class Svea_Checkout_Model_Payment_CreateOrder
             $shippingCompany  = $shippingAddress->getData('FullName');
             $billingFirstname = ($reference)
                               ? $reference
-                              : $notNull;
+                              : $billingFirstname;
         }
         $billingLastname  = ($billingAddress->getData('LastName'))
                           ? $billingAddress->getData('LastName')
@@ -185,7 +185,6 @@ class Svea_Checkout_Model_Payment_CreateOrder
                 $shippingAddress->getData('CoAddress'),
             ]
         );
-
         $street  = ($street) ? $street : $notNull;
         $city    = $shippingAddress->getData('City');
         $city    = ($city) ? $city : $notNull;
