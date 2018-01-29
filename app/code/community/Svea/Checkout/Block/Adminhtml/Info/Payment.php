@@ -37,27 +37,30 @@ class Svea_Checkout_Block_Adminhtml_Info_Payment
         $paymentData = $info->getAdditionalInformation();
 
         $labels = [
-            'reference'    => 'Svea Order Id',
-            'reference2'   => 'Our reference',
-            'method'       => 'Payment Method',
-            'ssn'          => 'Social Security Number',
-            'mode'         => 'Mode',
+            'reference'         => 'Svea Order Id',
+            'reference2'        => 'Magento Order reference',
+            'CustomerReference' => 'Customer reference',
+            'method'            => 'Payment Method',
+            'SveaWillBuyOrder'  => 'Bought invoice',
+            'mode'              => 'Mode',
         ];
-        $paths = [
-            'reservation/OrderId'             => 'reference',
-            'reservation/ClientOrderNumber'   => 'reference2',
-            'reservation/PaymentType'         => 'method',
-            'reservation/Customer/NationalId' => 'ssn',
-            'mode'                            => 'mode',
+        $paths  = [
+            'reservation/OrderId'           => 'reference',
+            'reservation/ClientOrderNumber' => 'reference2',
+            'reservation/CustomerReference' => 'CustomerReference',
+            'reservation/SveaWillBuyOrder'  => 'SveaWillBuyOrder',
+            'reservation/PaymentType'       => 'method',
+            'mode'                          => 'mode',
         ];
 
         if (!sizeof($paymentData)) {
             $paths = [
-                'OrderId'             => 'reference',
-                'ClientOrderNumber'   => 'reference2',
-                'PaymentType'         => 'method',
-                'Customer-NationalId' => 'ssn',
-                'mode'                => 'mode',
+                'OrderId'           => 'reference',
+                'ClientOrderNumber' => 'reference2',
+                'CustomerReference' => 'CustomerReference',
+                'PaymentType'       => 'method',
+                'SveaWillBuyOrder'  => 'SveaWillBuyOrder',
+                'mode'              => 'mode',
             ];
 
             $transaction = $info->getAuthorizationTransaction();
