@@ -38,12 +38,20 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         $diff      = $this->_diffOrderRows($fakeOrder['rows'], $response['Cart']['Items']);
 
         if (sizeof($diff['error'])) {
-            if (isset($response['Status']) && $response['Status'] != 'Created') {
+            if ($tries >= 2) {
 
                 return true;
             }
 
-            if ($tries >= 1) {
+            if(
+                $quote->collectTotals()->save() &&
+                !$this->sveaOrderHasErrors($sveaOrder, $quote, $response, $tries + 1)
+            ) {
+
+                return false;
+            }
+
+            if (isset($response['Status']) && $response['Status'] != 'Created') {
 
                 return true;
             }
