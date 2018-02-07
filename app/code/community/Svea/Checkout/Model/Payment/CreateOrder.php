@@ -116,28 +116,42 @@ class Svea_Checkout_Model_Payment_CreateOrder
         $shippingAddress  = new Varien_Object($data->getData('ShippingAddress'));
         $customer         = new Varien_Object($data->getData('Customer'));
 
+        $fakeFull = explode(' ', $billingAddress->getData('FullName'));
+        $fakeFirst = (end($fakeFull)) ? end($fakeFull) : $notNull;
+        $fakeLast = (isset($fakeFull[0])) ? $fakeFull[0] : $notNull;
+
+        $fakeFullShipping = explode(' ', $shippingAddress->getData('FullName'));
+        $fakeFirstShipping = (end($fakeFull)) ? end($fakeFull) : $notNull;
+        $fakeLastShipping = (isset($fakeFull[0])) ? $fakeFull[0] : $notNull;
+
+
         $reference        = ($data->getData('CustomerReference'))
-                          ? ($data->getData('CustomerReference'))
-                          : false;
+            ? ($data->getData('CustomerReference'))
+            : false;
         $reference        = (!$reference && $customer->getData('CustomerReference'))
-                          ? ($customer->getData('CustomerReference'))
-                          : false;
+            ? ($customer->getData('CustomerReference'))
+            : false;
+
+
         $billingFirstname = ($billingAddress->getData('FirstName'))
-                          ? $billingAddress->getData('FirstName')
-                          : $notNull;
+            ? $billingAddress->getData('FirstName')
+            : $fakeFirst;
         $billingFirstname = ($billingFirstname)
-                          ? $billingFirstname
-                          : $notNull;
+            ? $billingFirstname
+            : $fakeFirst;
+
+
         if (true == $customer->getData('IsCompany')) {
             $billingCompany   = $billingAddress->getData('FullName');
             $shippingCompany  = $shippingAddress->getData('FullName');
             $billingFirstname = ($reference)
-                              ? $reference
-                              : $billingFirstname;
+                ? $reference
+                : $billingFirstname;
         }
         $billingLastname  = ($billingAddress->getData('LastName'))
-                          ? $billingAddress->getData('LastName')
-                          : $notNull;
+            ? $billingAddress->getData('LastName')
+            : $fakeLast;
+
 
         $street = implode(
             "\n",
@@ -170,13 +184,13 @@ class Svea_Checkout_Model_Payment_CreateOrder
             $shippingFirstname = $reference;
         } else {
             $shippingFirstname = ($shippingAddress->getData('FirstName'))
-                               ? $shippingAddress->getData('FirstName')
-                               : $notNull;
+                ? $shippingAddress->getData('FirstName')
+                : $fakeFirstShipping;
         }
 
         $shippingLastname = $shippingAddress->getData('LastName')
-                          ? $shippingAddress->getData('LastName')
-                          : $notNull;
+            ? $shippingAddress->getData('LastName')
+            : $fakeLastShipping;
 
         $street = implode(
             "\n",
