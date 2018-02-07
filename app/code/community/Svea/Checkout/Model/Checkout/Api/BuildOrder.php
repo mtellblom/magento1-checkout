@@ -43,10 +43,8 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
                 return true;
             }
 
-            if(
-                $quote->collectTotals()->save() &&
-                !$this->sveaOrderHasErrors($sveaOrder, $quote, $response, $tries + 1)
-            ) {
+            if(!$this->sveaOrderHasErrors($sveaOrder, $quote->collectTotals(), $response, $tries + 1)) {
+                $quote->save();
 
                 return false;
             }
