@@ -20,7 +20,10 @@ class Svea_Checkout_Model_Payment_Api_Invoice
     const SVEA_CAN_ADD_ORDER_ROW            = 'CanAddOrderRow';
     const SVEA_ROW_IS_IS_UPDATEABLE         = 'CanUpdateOrderRow';
     const SVEA_CURRENT_ROW_IS_IS_UPDATEABLE = 'CanUpdateRow';
+    const SVEA_CAN_CREDIT_ORDER_AMOUNT      = 'CanCreditAmount';
     const SVEA_CAN_CREDIT_ORDER_ROWS        = 'CanCreditRow';
+    const SVEA_CAN_CANCEL_ORDER_AMOUNT      = 'CanCancelAmount';
+    const SVEA_ORDER_DELIVERED              = 'Delivered';
 
     /**
      * Create invoice.
@@ -42,8 +45,8 @@ class Svea_Checkout_Model_Payment_Api_Invoice
         $shippingMethod         = '';
         $canPartiallyProcess    = in_array($this::SVEA_IS_PARTIALLY_INVOICEABLE, $sveaOrder['Actions']);
 
-        if (!in_array($this::SVEA_IS_INVOICEABLE, $sveaOrder['Actions'])) {
-            if ($sveaOrder['orderStatus'] == 'Delivered') {
+        if (!in_array($this::SVEA_IS_INVOICEABLE, $sveaOrder['Actions']) && isset($sveaOrder['OrderStatus'])) {
+            if ($sveaOrder['OrderStatus'] == $this::SVEA_ORDER_DELIVERED) {
                 return new Varien_Object($sveaOrder);
             }
 
@@ -273,6 +276,58 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                     break;
                 }
             }
+        }
+
+        if (
+            is_array($sveaOrder['Actions']) &&
+            in_array(self::SVEA_CAN_CANCEL_ORDER_AMOUNT, $sveaOrder['Actions'])
+        ) {
+
+            Mage::throwException(
+                'Amount not yet settled (usually takes up to 24 hours), Use void to fully cancel the order.'
+            );
+        }
+
+        if (isset($deliveryKey)) {
+            $delivery = $sveaOrder['Deliveries'][$deliveryKey];
+            if (
+                is_array($delivery['Actions']) &&
+                in_array($this::SVEA_CAN_CREDIT_ORDER_AMOUNT, $delivery['Actions'])
+            ) {
+
+                $refundAmount = $creditMemo->getGrandTotal();
+
+                WebPayAdmin::creditAmount($sveaConfig)
+                    ->setCheckoutOrderId($sveaOrderId)
+                    ->setDeliveryId($deliveryKey)
+                    ->setAmountIncVat((float)$refundAmount)
+                    ->creditCheckoutAmount()
+                    ->doRequest();
+                $sveaOrder = $this->_getCheckoutOrder($order);
+
+                return new Varien_Object($sveaOrder);
+            }
+        } else {
+            foreach ($sveaOrder['Deliveries'] as $deliveries) {
+                if (
+                    is_array($deliveries['Actions']) &&
+                    in_array($this::SVEA_CAN_CREDIT_ORDER_AMOUNT, $deliveries['Actions'])
+                ) {
+                    $refundAmount = $creditMemo->getGrandTotal();
+                    $deliveryKey  = $deliveries['Id'];
+
+                    WebPayAdmin::creditAmount($sveaConfig)
+                        ->setCheckoutOrderId($sveaOrderId)
+                        ->setDeliveryId($deliveryKey)
+                        ->setAmountIncVat((float)$refundAmount)
+                        ->creditCheckoutAmount()
+                        ->doRequest();
+
+                }
+            }
+            $sveaOrder = $this->_getCheckoutOrder($order);
+
+            return new Varien_Object($sveaOrder);
         }
 
         if (isset($deliveryKey)) {
