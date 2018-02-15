@@ -270,7 +270,7 @@ class Svea_Checkout_Model_Payment_Invoice
                 ->setVatPercent((int)round($item->getTaxPercent()))
                 ->setQuantity((float)round($item->getQty(), 2))
                 ->setArticleNumber($prefix . $item->getSku())
-                ->setName((string)mb_substr($item->getName(), 0, 40));
+                ->setName((string)mb_substr($item->getName() . $this->getItemOptions($item), 0, 40));
 
             $sveaOrder->addOrderRow($orderRowItem);
 
@@ -282,6 +282,50 @@ class Svea_Checkout_Model_Payment_Invoice
 
                 $sveaOrder->addDiscount($itemRowDiscount);
             }
+        }
+    }
+
+    /**
+     * Get item options from orderitem.
+     *
+     * @param $item
+     *
+     * @return string
+     */
+    protected function getItemOptions($item)
+    {
+        $paymentInformation = unserialize($item->getOrder()->getPaymentInformation());
+        $isActive = (isset($paymentInformation['view_options_on_invoice']))
+            ? $paymentInformation['view_options_on_invoice']
+            : false;
+
+        if (!$isActive) {
+
+            return '';
+        }
+
+        $itemOptions = [];
+        $options     = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+        if ($options) {
+            if (isset($options['options']) && !empty($options['options'])) {
+                $itemOptions = array_merge($itemOptions, $options['options']);
+            }
+            if (isset($options['additional_options']) && !empty($options['additional_options'])) {
+                $itemOptions = array_merge($itemOptions, $options['additional_options']);
+            }
+            if (isset($options['attributes_info']) && !empty($options['attributes_info'])) {
+                $itemOptions = array_merge($itemOptions, $options['attributes_info']);
+            }
+        }
+        $options = [];
+        foreach ($itemOptions as $option) {
+            $options[] = implode(': ', $option);
+        }
+        $options = implode(', ',$options);
+
+        if (!empty(trim($options))) {
+
+            return ' '.$options;
         }
     }
 }

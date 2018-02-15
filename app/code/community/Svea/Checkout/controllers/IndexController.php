@@ -30,6 +30,13 @@ class Svea_Checkout_IndexController
         return method_exists($this, $this->getActionMethodName($action));
     }
 
+    protected function _getPaymentSettings() {
+        return [
+            'view_options_on_invoice' => Mage::getStoreConfig('payment/SveaCheckout/view_options_on_invoice')
+        ];
+    }
+
+
     /**
      * Handles return to payment window with failed payment.
      *
@@ -101,7 +108,8 @@ class Svea_Checkout_IndexController
         }
     }
 
-    public function getLastErrorAction() {
+    public function getLastErrorAction()
+    {
         $session         = Mage::getSingleton('checkout/session');
         $quoteId         = $session->getQuote()->getId();
         $orderQueueItem  = Mage::getModel('sveacheckout/queue')->load($quoteId, 'quote_id');
@@ -181,7 +189,8 @@ class Svea_Checkout_IndexController
             $snippet     = $response['Gui']['Snippet'];
 
             $this->_renderSnippet($snippet);
-            $quote->setPaymentReference($sveaOrderId)->save();
+            $settings = serialize($this->_getPaymentSettings());
+            $quote->setPaymentReference($sveaOrderId)->setPaymentInformation($settings)->save();
 
             //Save Potential order in queue.
             $this->_insertIntoQueue($quote->getId());
@@ -205,6 +214,9 @@ class Svea_Checkout_IndexController
     protected function _addBasicAddressToQuote($quote)
     {
         $defaultCountry = Mage::helper('core')->getDefaultCountry();
+
+        $settings = serialize($this->_getPaymentSettings());
+        $quote->setPaymentInformation($settings);
 
         if (!$quote->getBillingAddress()->getCountryId()) {
             $quote->getBillingAddress()
