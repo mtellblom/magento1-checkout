@@ -103,6 +103,9 @@
                 <order_status><![CDATA[sveacheckout_pending]]></order_status>
                 <order_status_before_acknowledge><![CDATA[sveacheckout_acknowledged]]></order_status_before_acknowledge>
             </sveacheckout>
+            <sveacheckout_dev_settings>
+                <reference>suffixed-increment-id</reference>
+            </sveacheckout_dev_settings>
         </payment>
     </default>
     <sales>

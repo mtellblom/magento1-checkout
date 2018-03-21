@@ -152,16 +152,24 @@ class Svea_Checkout_ValidationController
 
     protected function _makeSveaOrderId($orderId)
     {
-        $incrementId = Mage::getResourceModel('sales/order')
-            ->getIncrementId($orderId);
+        $reference = $orderId;
+        $useForReference = Mage::getStoreConfig('payment/sveacheckout_dev_settings/reference');
+        if (in_array($useForReference, ['plain-increment-id', 'suffixed-increment-id'])) {
+            $reference = Mage::getResourceModel('sales/order')
+                ->getIncrementId($orderId);
+        }
+        if (in_array($useForReference, ['plain-increment-id', 'plain-order-id'])) {
+
+            return $reference;
+        }
 
         //To avoid order already being created, if you for example have
         //stageEnv/devEnv and ProductionEnv with quote id in same range.
         $allowedLength = 32;
         $separator = '_';
-        $lengthOfHash  = $allowedLength - (strlen((string)$incrementId) + strlen($separator));
+        $lengthOfHash  = $allowedLength - (strlen((string)$reference) + strlen($separator));
         $hashedBaseUrl = sha1(Mage::getBaseUrl());
-        $clientId      = $incrementId . $separator . mb_substr($hashedBaseUrl, 0, $lengthOfHash);
+        $clientId      = $reference . $separator . mb_substr($hashedBaseUrl, 0, $lengthOfHash);
 
         return $clientId;
     }

@@ -90,13 +90,19 @@ class Svea_Checkout_Model_Payment_Acknowledge
                 $magentoOrder->setCustomerEmail($sveaData->getData('EmailAddress'));
             }
 
-            $status       = Mage::getStoreConfig('payment/SveaCheckout/order_status_after_acknowledge');
+            $statusText       = Mage::getStoreConfig('payment/SveaCheckout/order_status_after_acknowledge');
             $message      = $helper->__("Order was acknowledged by Svea.");
 
             $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);
 
+            $state = Mage::getModel('sales/order_status')
+                ->getCollection()
+                ->joinStates()
+                ->addFieldToFilter('main_table.status', $statusText)
+                ->getFirstItem();
+
             $magentoOrder
-                ->setState(Mage_Sales_Model_Order::STATE_NEW, $status, $message, false)
+                ->setState($state->getState(), $statusText, $message, false)
                 ->save();
             $magentoOrder->getSendConfirmation(null);
 
