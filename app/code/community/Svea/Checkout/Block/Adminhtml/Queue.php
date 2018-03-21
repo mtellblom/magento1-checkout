@@ -46,7 +46,7 @@ class Svea_Checkout_Block_Adminhtml_Queue
         $queueCollection = Mage::getResourceModel('sveacheckout/queue_collection')
             ->setOrder('queue_id', 'DESC');
         if (!$filterOrders) {
-            $queueCollection->addFieldToFilter('state', ['nin' => [1, 4]]);
+            $queueCollection->addFieldToFilter('state', ['nin' => [1, 2,4]]);
         }
 
         $details = [];
@@ -61,6 +61,17 @@ class Svea_Checkout_Block_Adminhtml_Queue
             $detailsUrl = $urlModel->getUrl(
                 '*/queue/index', ['moreInfo' => $queueItem->getData('quote_id')]
             );
+            $cachedSveaData = json_decode($queueItem->getData('push_response'));
+            $orderStatus    = Mage::getModel('sales/order')->getCollection()
+                ->addFieldToSelect('status')
+                ->addFieldToFilter('entity_id', $queueItem->getOrderId())
+                ->getFirstItem();
+
+            $translatedOrderStatus = Mage::getModel('sales/order_status')
+                ->getCollection()
+                ->joinStates()
+                ->addFieldToFilter('main_table.status', $orderStatus->getStatus())
+                ->getFirstItem();
 
             $quote = Mage::getModel('sales/quote')
                 ->loadByIdWithoutStore($queueItem->getData('quote_id'));
@@ -75,6 +86,10 @@ class Svea_Checkout_Block_Adminhtml_Queue
                     'sveaId'     => $quote->getData('payment_reference'),
                 ]
             );
+
+            if (!$filterOrders && $orderStatus->getStatus() =='canceled' && $cachedSveaData->Status == 'Cancelled') {
+                continue;
+            }
 
             $cell = [];
             $cell[] = sprintf(
@@ -120,6 +135,8 @@ class Svea_Checkout_Block_Adminhtml_Queue
             $cell[] = $queueItem->getData('STAMP_DATE');
             $cell[] = $queueItem->getData('STAMP_CR_DATE');
             $cell[] = $translateState[(int)$queueItem->getData('state')];
+            $cell[] = $translatedOrderStatus->getLabel() ? $translatedOrderStatus->getLabel() : '';
+            $cell[] = isset($cachedSveaData->Status) ? $cachedSveaData->Status : '';
 
             $cell[] = sprintf(
                 '<span data-href="%s" 
