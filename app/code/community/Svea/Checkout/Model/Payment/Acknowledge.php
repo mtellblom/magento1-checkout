@@ -48,6 +48,14 @@ class Svea_Checkout_Model_Payment_Acknowledge
             }
 
             if (sizeof($orderThatMatch) >= 2) {
+                foreach ($orderThatMatch as $k => $order) {
+                    if ($order->getStatus() == 'canceled') {
+                        unset($orderThatMatch[$k]);
+                    }
+                }
+            }
+
+            if (sizeof($orderThatMatch) >= 2) {
 
                 throw new Mage_Core_Exception("There were multiple orders that matched SveaOrder with ID {$sveaId}.");
             } elseif($indicationOfError && sizeof($orderThatMatch)) {
