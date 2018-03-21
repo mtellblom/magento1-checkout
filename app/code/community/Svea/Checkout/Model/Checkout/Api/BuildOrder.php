@@ -92,6 +92,10 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
     public function createSveaOrderFromQuote($quote, $test=false)
     {
         $sveaOrder = $this->setupCommunication();
+
+        if ($test === false) {
+            $quote = $this->checkQuote($sveaOrder, $quote);
+        }
         $this->_setupOrderConfig($sveaOrder, $quote)
             ->setLocales($sveaOrder)
             ->_presetValues($quote,$sveaOrder)
@@ -100,6 +104,31 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
             ->_addTotalRows($quote, $sveaOrder);
 
         return $sveaOrder;
+    }
+
+    /**
+     * Check if Svea order is still valid.
+     *
+     * @param $sveaOrder
+     * @param $quote
+     *
+     * @return mixed
+     */
+    protected function checkQuote($sveaOrder, $quote) {
+        $sveaId = (int)$quote->getPaymentReference();
+        if ($sveaId) {
+            try {
+                $orderResponse = $sveaOrder->setCheckoutOrderId($sveaId)->getOrder($sveaId);
+            } catch (\Svea\Checkout\Exception\SveaApiException $e) {
+                $quote = Mage::helper('sveacheckout')->replaceQuote();
+            }
+
+            if (isset($orderResponse) && $orderResponse['Status'] != 'Created'){
+                $quote = Mage::helper('sveacheckout')->replaceQuote();
+            }
+        }
+
+        return $quote;
     }
 
     /**
