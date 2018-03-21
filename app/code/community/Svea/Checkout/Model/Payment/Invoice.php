@@ -19,7 +19,7 @@ class Svea_Checkout_Model_Payment_Invoice
     protected $_canRefundInvoicePartial = false;
     protected $_canVoid                 = true;
     protected $_canUseInternal          = false;
-
+    protected $_canUseForMultishipping  = false;
     /**
      * Get need for initialisation flag.
      *
