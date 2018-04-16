@@ -74,7 +74,6 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                 []
             );
         } else {
-
             $deliverItems = $this->_getActionRows(
                 $paymentItems,
                 $sveaOrder['OrderRows'],
@@ -325,9 +324,12 @@ class Svea_Checkout_Model_Payment_Api_Invoice
 
                 }
             }
-            $sveaOrder = $this->_getCheckoutOrder($order);
 
-            return new Varien_Object($sveaOrder);
+            if (isset($refundAmount)) {
+                $sveaOrder = $this->_getCheckoutOrder($order);
+
+                return new Varien_Object($sveaOrder);
+            }
         }
 
         if (isset($deliveryKey)) {
