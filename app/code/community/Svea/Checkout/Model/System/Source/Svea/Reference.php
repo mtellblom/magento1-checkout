@@ -11,7 +11,6 @@ class Svea_Checkout_Model_System_Source_Svea_Reference
 {
     /**
      * Creates a list of available reference options.
-     * countries and locales.
      *
      * @return array
      */
