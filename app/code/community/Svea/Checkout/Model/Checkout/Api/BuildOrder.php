@@ -240,6 +240,24 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      */
     protected function _presetValues($quote, $sveaOrder)
     {
+        $allowedCustomerType  =  Mage::getStoreConfig('payment/SveaCheckout/allowed_customers');
+        if ($allowedCustomerType !== false) {
+            $ct = Mage::getModel('sveacheckout/System_Source_Svea_Customertype');
+
+            $readOnly  = (in_array($allowedCustomerType, [$ct::EXCLUSIVELY_INDIVIDUALS, $ct::EXCLUSIVELY_COMPANIES]))
+                ? true
+                : false;
+            $isCompany = (in_array($allowedCustomerType, [$ct::EXCLUSIVELY_COMPANIES, $ct::PRIMARILY_COMPANIES]))
+                ? true
+                : false;
+
+            $presetIsCompany = WebPayItem::presetValue()
+                ->setTypeName(\Svea\WebPay\Checkout\Model\PresetValue::IS_COMPANY)
+                ->setValue($isCompany)
+                ->setIsReadonly($readOnly);
+            $sveaOrder->addPresetValue($presetIsCompany);
+        }
+
         if (!$quote->getCustomer() || !$quote->getCustomer()->getPrimaryBillingAddress()) {
             return $this;
         }
