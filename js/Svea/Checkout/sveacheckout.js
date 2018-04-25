@@ -192,6 +192,7 @@ SveaCheckout.prototype = {
     /**
      * Shipping Method buttons
      */
+    $('country-form').observe('change', this.updateCountry.bind(this));
     $('co-shipping-method-form').observe('change', this.updateShipping.bind(this));
     $('discount-coupon-form').observe('submit',    this.updateCoupon.bind(this));
   },
@@ -259,6 +260,26 @@ SveaCheckout.prototype = {
     this._debug(formData);
 
     this.doAjaxUpdate('coupon', formData);
+  },
+
+  updateCountry: function (event) {
+    if (typeof event == 'undefined') {
+      return;
+    }
+    var formData = $('country-form').serialize(true);
+
+    event.preventDefault();
+    event.stopPropagation();
+    var elem = event.target;
+    if (elem.hasAttribute('data-remove')) {
+      formData.remove = 1;
+    }
+
+
+    this._debug('Update country');
+    this._debug(formData);
+
+    this.doAjaxUpdate('country', formData);
   },
 
   /**
@@ -375,6 +396,9 @@ SveaCheckout.prototype = {
           if (response.status === 0) {
             this.showMessage(response.message_title + '<br/>' + response.message, 'error');
           }
+          break;
+        case 'country':
+          $('svea-checkout-container').update(response.html.snippet);
           break;
         case 'cart-remove':
           break;

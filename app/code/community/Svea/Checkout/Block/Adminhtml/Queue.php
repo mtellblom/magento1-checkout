@@ -112,7 +112,7 @@ class Svea_Checkout_Block_Adminhtml_Queue
                 $svea                   = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
                 $sveaOrder              = $svea->setupCommunication();
 
-                $svea->setLocales($sveaOrder);
+                $svea->setLocales($sveaOrder, $quote);
                 $orderId = (int)$quote->getPaymentReference();
                 $response = new Varien_Object($sveaOrder->setCheckoutOrderId($orderId)->getOrder());
                 $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);

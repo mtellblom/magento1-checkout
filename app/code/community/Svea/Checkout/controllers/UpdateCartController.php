@@ -94,6 +94,9 @@ class Svea_Checkout_UpdateCartController
                 case 'cart-remove':
                     $this->_removeQuoteCart();
                     break;
+                case 'country':
+                    $this->_updateCountry();
+                    break;
                 case 'coupon':
                     $this->_updateQuoteCoupon();
                     break;
@@ -158,6 +161,84 @@ class Svea_Checkout_UpdateCartController
         }
 
         return $this;
+    }
+
+    /**
+     * Save and update current quote after update of cart.
+     *
+     */
+    protected function _updateCountry()
+    {
+        $countryId = $this->getRequest()->getParam('country_id');
+
+        $svea        = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
+        $session     = Mage::getSingleton('checkout/session');
+        $oldQuote    = $this->getQuote();
+        $sveaOrderId = null;
+        $quote = Mage::getModel('sales/quote')->setStore(Mage::app()->getStore());
+        $quote->merge($oldQuote)
+            ->setIsActive(1)
+            ->setReservedOrderId(null)
+            ->setPaymentReference($sveaOrderId)
+            ->collectTotals()
+            ->save();
+        $session->replaceQuote($quote)
+            ->unsLastRealOrderId();
+        $sveaOrder = $svea->createSveaOrderFromQuote($quote);
+        $sveaOrder->setCountryCode($countryId);
+
+        //Create a new order in Sveas end, to reset URIs.
+        if (!$sveaOrderId) {
+            $response = $sveaOrder->createOrder();
+            $sveaOrderId = $response['OrderId'];
+            $quote->setPaymentReference($sveaOrderId)->save();
+        }
+
+        $quote->getBillingAddress()->setCountryId($countryId)->save();
+        $quote->getShippingAddress()->setCountryId($countryId)->save();
+        $this->_quote = $quote;
+        $result = $this->_saveQuoteUpdates();
+
+        $orderQueue = Mage::getModel('sveacheckout/queue');
+        $queueItemExists = $orderQueue->getCollection()
+            ->addFieldToFilter('quote_id', $quote->getId())
+            ->count();
+
+        if (!$queueItemExists) {
+            $orderQueue->setData('quote_id', $quote->getId())
+                ->save();
+        }
+
+        $this->_addShippingBlockToResponse();
+        $this->_addCartBlockToResponse();
+        $this->_addTotalsBlockToResponse();
+        $this->_addSveaBlockToResponse();
+
+        if (!$this->_getQuote()->validateMinimumAmount()) {
+            $this->_addResponseMessage(
+                self::SVEA_CHECKOUT_RESPONSE_REDIRECT,
+                'Minimum amount',
+                Mage::getUrl('checkout/cart')
+            );
+            $code = 303;
+        } elseif ($result) {
+            $this->_addResponseMessage(
+                self::SVEA_CHECKOUT_RESPONSE_SUCCESS,
+                "Cart updated",
+                "Successful cart update"
+            );
+            $code = 200;
+        } else {
+            $this->_addResponseMessage(
+                self::SVEA_CHECKOUT_RESPONSE_ERROR,
+                "Cart updated unsuccessful",
+                $this->_getQuoteErrors()
+            );
+            $this->_addAlertBlockToResponse();
+            $code = 422;
+        }
+
+        $this->_sendResponse($code);
     }
 
     /**
@@ -239,16 +320,18 @@ class Svea_Checkout_UpdateCartController
         if ($this->_getQuote()->hasDataChanges() && !$this->_getQuote()->getHasError()) {
             try {
 
-                $defaultCountry = Mage::helper('core')->getDefaultCountry();
                 $quote = $this->_getQuote();
+                $defaultCountry = Mage::helper('core')->getDefaultCountry();
+                $country = ($quote) ? $quote->getShippingAddress()->getCountryId() : null;
+                $country = ($country) ? $country : $defaultCountry;
 
                 if (!$quote->getBillingAddress()->getCountryId()) {
                     $quote->getBillingAddress()
-                        ->setCountryId($defaultCountry);
+                        ->setCountryId($country);
                 }
                 if (!$quote->getShippingAddress()->getCountryId()) {
                     $quote->getShippingAddress()
-                        ->setCountryId($defaultCountry);
+                        ->setCountryId($country);
                 }
 
                 $this->_getQuote()->getShippingAddress()->setCollectShippingRates(true);

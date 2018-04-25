@@ -412,7 +412,7 @@ class Svea_Checkout_IndexController
         $sveaOrder = $svea->setupCommunication();
 
         try {
-            $svea->setLocales($sveaOrder);
+            $svea->setLocales($sveaOrder, $quote);
             $response = $sveaOrder
                 ->setCheckoutOrderId((int)$orderId)
                 ->getOrder();

@@ -31,7 +31,7 @@ class Svea_Checkout_PushController
             $quote = $this->_getQuoteById($quoteId);
             $storeId = $quote->getStoreId();
             Mage::app()->setCurrentStore($storeId);
-            $svea->setQuote($quote)->setLocales($sveaOrder);
+            $svea->setQuote($quote)->setLocales($sveaOrder, $quote);
             $orderId = $quote->getPaymentReference();
         } catch (Exception $ex) {
 

@@ -37,6 +37,12 @@
     display: block;
     border: 2px solid  black;
 }
+#sveacheckout-wrapper .shipping-and-handling #country {
+    margin: 0 auto;
+    margin-bottom: 1rem;
+    width: 100%;
+    padding: .5rem 1rem;
+}
 
 .cart .product-cart-image {
     min-width: 5rem;

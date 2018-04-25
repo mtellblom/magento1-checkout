@@ -132,7 +132,6 @@ class Svea_Checkout_Model_Payment_CreateOrder
             ? ($customer->getData('CustomerReference'))
             : false;
 
-
         $billingFirstname = ($billingAddress->getData('FirstName'))
             ? $billingAddress->getData('FirstName')
             : $fakeFirst;
@@ -160,6 +159,15 @@ class Svea_Checkout_Model_Payment_CreateOrder
                 $billingAddress->getData('CoAddress'),
             ]
         );
+
+        if (!empty($billingAddress->getData('AddressLines'))) {
+            $street = implode(
+                "\n",
+                $billingAddress->getData('AddressLines')
+            );
+
+        }
+
         $street  = ($street) ? $street : $notNull;
         $city    = $billingAddress->getData('City');
         $city    = $city ? $city : $notNull;
@@ -199,6 +207,14 @@ class Svea_Checkout_Model_Payment_CreateOrder
                 $shippingAddress->getData('CoAddress'),
             ]
         );
+
+        if (!empty($shippingAddress->getData('AddressLines'))) {
+            $street = implode(
+                "\n",
+                $shippingAddress->getData('AddressLines')
+            );
+        }
+
         $street  = ($street) ? $street : $notNull;
         $city    = $shippingAddress->getData('City');
         $city    = ($city) ? $city : $notNull;

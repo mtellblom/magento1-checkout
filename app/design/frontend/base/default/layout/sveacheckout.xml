@@ -37,7 +37,8 @@
                         <template>checkout/cart/item/default.phtml</template>
                     </action>
                 </block>
-
+                <block type="sveacheckout/checkout_cart" name="checkout.country"
+                       template="sveacheckout/checkout/elements/cart/country.phtml" />
                 <block type="sveacheckout/checkout_cart" name="checkout.summary"
                        template="sveacheckout/checkout/elements/cart/summary.phtml">
                     <block type="checkout/cart_coupon" name="checkout.cart.coupon" as="coupon"

@@ -40,7 +40,7 @@ class Svea_Checkout_ValidationController
             $quote   = $this->_getQuoteById($quoteId);
             $storeId = $quote->getStoreId();
             Mage::app()->setCurrentStore($storeId);
-            $svea->setQuote($quote)->setLocales($sveaOrder);
+            $svea->setQuote($quote)->setLocales($sveaOrder, $quote);
             $orderId = $quote->getPaymentReference();
         } catch (Exception $ex) {
 
@@ -65,6 +65,11 @@ class Svea_Checkout_ValidationController
             if ($svea->sveaOrderHasErrors($sveaOrder, $quote, $response)) {
 
                 Mage::throwException("Quote " . intval($quoteId) . " is not valid");
+            }
+
+            if (!($quote->getPayment()->getMethod())) {
+                $payment = $quote->getPayment();
+                $payment->setMethod('sveacheckout');
             }
 
             if (

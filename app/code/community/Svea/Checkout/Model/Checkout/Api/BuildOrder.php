@@ -86,10 +86,11 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      * returns the (reservation)order as an array.
      *
      * @param  Mage_Sales_Model_Quote $quote
+     * @param  bool $test
      *
-     * @return Svea\WebPay\BuildOrder SveaOrder Object.
+     * @return \Svea\Checkout\CheckoutClient
      */
-    public function createSveaOrderFromQuote($quote, $test=false)
+    public function createSveaOrderFromQuote($quote, $test = false)
     {
         $sveaOrder = $this->setupCommunication();
 
@@ -97,7 +98,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
             $quote = $this->checkQuote($sveaOrder, $quote);
         }
         $this->_setupOrderConfig($sveaOrder, $quote)
-            ->setLocales($sveaOrder)
+            ->setLocales($sveaOrder, $quote)
             ->_presetValues($quote,$sveaOrder)
             ->_addCartItems($quote)
             ->_addShipping($quote, $sveaOrder, $test)
@@ -210,7 +211,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      *
      * @return Svea_Checkout_Model_Checkout_Api_BuildOrder
      */
-    public function setLocales($sveaOrder)
+    public function setLocales($sveaOrder, $quote = null)
     {
         $localeData = Mage::getStoreConfig('payment/SveaCheckout/purchase_locale');
         $locale     = unserialize($localeData);
@@ -219,8 +220,11 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
             Mage::throwException('No usable locale found.');
         }
 
+        $country = ($quote) ? $quote->getShippingAddress()->getCountryId() : null;
+        $country = ($country) ? $country : $locale['purchase_country'];
+
         $sveaOrder
-            ->setCountryCode($locale['purchase_country'])
+            ->setCountryCode($country)
             ->setCurrency($locale['purchase_currency'])
             ->setLocale($locale['locale']);
 
@@ -496,14 +500,18 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
     protected function _addBasicAddressToQuote($quote)
     {
         $defaultCountry = Mage::helper('core')->getDefaultCountry();
+        $country = ($quote) ? $quote->getShippingAddress()->getCountryId() : null;
+        $country = ($country) ? $country : $defaultCountry;
+        $country = Mage::app()->getRequest()->getParam('country_id');
+
         if (!$quote->getBillingAddress()->getCountryId()) {
             $quote->getBillingAddress()
-                ->setCountryId($defaultCountry)
+                ->setCountryId($country)
                 ->setCollectShippingRates(true);
         }
         if (!$quote->getShippingAddress()->getCountryId()) {
             $quote->getShippingAddress()
-                ->setCountryId($defaultCountry)
+                ->setCountryId($country)
                 ->setCollectShippingRates(true);
         }
 
