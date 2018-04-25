@@ -97,10 +97,8 @@
                         </order_status>
 
                         <allowed_customers translate="label comment" module="sveacheckout">
-                            <label>Purchase locale</label>
+                            <label>(optional) Select Market</label>
                             <comment><![CDATA[
-                                (optional) Select Market
-                                <br />
                                 <small>
                                 <i>Your visitor has the option to switch between customer type company and individual
                                 during checkout. This setting dictates which option is pre chosen and if visitor should
