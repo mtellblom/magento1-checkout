@@ -41,9 +41,11 @@ class Svea_Checkout_Model_Checkout_Api_Configuration
     /**
      * Fetch Checkout Merchant id, used for Checkout order type
      *
+     * @param string|null $country
+     *
      * @return string
      */
-    public function getCheckoutMerchantId()
+    public function getCheckoutMerchantId($country = NULL)
     {
         $encryptedMerchantId = Mage::getStoreConfig('payment/SveaCheckout/merchant_id');
 
@@ -53,9 +55,11 @@ class Svea_Checkout_Model_Checkout_Api_Configuration
     /**
      * Fetches Checkout Secret word, used for Checkout order type.
      *
+     * @param string|null $country
+     *
      * @return string
      */
-    public function getCheckoutSecret()
+    public function getCheckoutSecret($country = NULL)
     {
         $encryptedSecret = Mage::getStoreConfig('payment/SveaCheckout/sharedsecret');
 
