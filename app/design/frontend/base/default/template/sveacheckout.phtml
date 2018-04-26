@@ -25,9 +25,9 @@ $sveaOrderId = ($quote->getPaymentReference())
         <?= $this->getChildHtml('checkout.cart'); ?>
     </div>
     <div class="shipping-and-handling">
-        <? if (Mage::getStoreConfig('payment/SveaCheckout/allow_switch_country')): ?>
+        <?php if (Mage::getStoreConfig('payment/SveaCheckout/allow_switch_country')): ?>
             <?= $this->getChildHtml('checkout.country'); ?>
-        <? endif; ?>
+        <?php endif; ?>
         <?= $this->getChildHtml('checkout.shipping'); ?>
     </div>
     <div class="summary-code">
