@@ -7,7 +7,7 @@ please contact Support-Webpay@sveaekonomi.se if you're unsure if you're whitelis
 Requires 
 * Magento 1.9 (May work in previous releases as well, but the module is developed and tested in 1.9.2/3)
 * magento-hackaton-installer
-* php 5.4 or higher
+* php 5.5 or higher
 * curl
 * mysql or mariadb
 * Magento's cronjob running every now and then
