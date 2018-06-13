@@ -93,6 +93,30 @@ class Svea_Checkout_PushController
             if ('final' == strtolower($responseObject->getData('Status'))) {
                 Mage::getModel('sveacheckout/payment_acknowledge')
                     ->acknowledge($quote, $request->getParam('mode'), $request->getParam('sveaId'));
+
+                /**
+                 * Cancel Duplicates.
+                 */
+                $orders = Mage::getModel('sales/order')->getCollection()
+                    ->addAttributeToFilter('quote_id', $quoteId);
+                if (count($orders) > 1) {
+                    foreach ($orders as $order) {
+                        if ($order->getPayment()->getMethod() != 'sveacheckout') {
+                            break;
+                        }
+
+                        if (
+                            'new' == $order->getState()
+                            && $order->canCancel()
+                            && ($order->getPayment() && !sizeof($order->getPayment()->getAdditionalInformation()))
+                        ) {
+                            $order->cancel()->save();
+                            Mage::helper('sveacheckout/Debug')->writeToLog(
+                                'cancelled duplicate order id'. $order->getId()
+                            );
+                        }
+                    }
+                }
             }
 
             if ($this->getResponse()->getHttpResponseCode() == 200) {

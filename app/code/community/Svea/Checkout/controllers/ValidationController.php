@@ -57,29 +57,17 @@ class Svea_Checkout_ValidationController
                 ->save();
 
             $responseObject = new Varien_Object($response);
-            if ($orderQueueItem->getState() == $orderQueueItem::SVEA_QUEUE_STATE_OK) {
 
-                return $this->reportAndReturn(208, "QueueItem {$quoteId} already handled.", $orderQueueItem->getOrderId());
-            }
-
-            if ($svea->sveaOrderHasErrors($sveaOrder, $quote, $response)) {
-
-                Mage::throwException("Quote " . intval($quoteId) . " is not valid");
-            }
 
             if (!($quote->getPayment()->getMethod())) {
                 $payment = $quote->getPayment();
                 $payment->setMethod('sveacheckout');
             }
 
-            if (
-                !$orderQueueItem->getData('order_id')
-                && $orderQueueItem->getData('state') != $orderQueueItem::SVEA_QUEUE_STATE_NEW
-                && $orderQueueItem->getData('state') != $orderQueueItem::SVEA_QUEUE_STATE_OK
-            ) {
-                $createdOrder = Mage::getModel('sveacheckout/Payment_CreateOrder')
-                    ->createOrder($quote, $responseObject, $orderQueueItem);
-            }
+
+            $createdOrder = Mage::getModel('sveacheckout/Payment_CreateOrder')
+                ->createOrder($quote, $responseObject, $orderQueueItem);
+
 
             if (isset($createdOrder) && true !== $createdOrder) {
 

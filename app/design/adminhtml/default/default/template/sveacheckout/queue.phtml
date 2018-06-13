@@ -2,12 +2,24 @@
     <?php
     $data = $this->getQueueData();
     $helper = Mage::helper('sveacheckout/renderer');
-    foreach ($data['details'] as $key => $detail) :?>
+    foreach ($data['details'] as $key => $detail) :
+        $shippingAddress = (isset($billingAddress['IsGeneric']) && $billingAddress['IsGeneric'])
+                         ? $shippingAddress['AddressLines']
+                         : $detail['ShippingAddress'];
+        unset($shippingAddress['AddressLines']);
+        unset($shippingAddress['IsGeneric']);
+
+        $billingAddress = (isset($billingAddress['IsGeneric']) && $billingAddress['IsGeneric'])
+                        ? $billingAddress['AddressLines']
+                        : $detail['BillingAddress'];
+        unset($billingAddress['AddressLines']);
+        unset($billingAddress['IsGeneric']);
+        ?>
         <div class="wrapper half-width">
             <h1><?= $key ?></h1>
             <div class="details">
                 <div class="address-details">
-                    <?php if (isset($detail['ShippingAddress'])): ?>
+                    <?php if (isset($shippingAddress)): ?>
                         <div class="address-card half-width">
                             <div class="entry-edit">
                                 <div class="entry-edit-head">
@@ -15,14 +27,14 @@
                                 </div>
                                 <fieldset>
                                     <address>
-                                        <?= implode("<br/>", $detail['ShippingAddress']) ?>
+                                        <?= implode("<br/>", $shippingAddress) ?>
                                     </address>
                                 </fieldset>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                    <?php if (isset($detail['BillingAddress'])): ?>
+                    <?php if (isset($billingAddress)): ?>
                         <div class="address-card half-width">
                             <div class="entry-edit">
                                 <div class="entry-edit-head">
@@ -30,7 +42,7 @@
                                 </div>
                                 <fieldset>
                                     <address>
-                                        <?= implode("<br/>", $detail['BillingAddress']) ?>
+                                        <?= implode("<br/>", $billingAddress) ?>
                                     </address>
                                 </fieldset>
                             </div>

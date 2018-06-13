@@ -94,9 +94,9 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
     {
         $sveaOrder = $this->setupCommunication();
 
-        if ($test === false) {
+        /*if ($test === false) {
             $quote = $this->checkQuote($sveaOrder, $quote);
-        }
+        }*/
         $this->_setupOrderConfig($sveaOrder, $quote)
             ->setLocales($sveaOrder, $quote)
             ->_presetValues($quote,$sveaOrder)
@@ -116,7 +116,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
      * @return mixed
      */
     protected function checkQuote($sveaOrder, $quote) {
-        $sveaId = (int)$quote->getPaymentReference();
+        /*$sveaId = (int)$quote->getPaymentReference();
         if ($sveaId) {
             try {
                 $orderResponse = $sveaOrder->setCheckoutOrderId($sveaId)->getOrder($sveaId);
@@ -127,7 +127,7 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
             if (isset($orderResponse) && $orderResponse['Status'] != 'Created'){
                 $quote = Mage::helper('sveacheckout')->replaceQuote();
             }
-        }
+        }*/
 
         return $quote;
     }

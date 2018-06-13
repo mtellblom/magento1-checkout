@@ -47,7 +47,7 @@ class Svea_Checkout_Model_Payment_CreateOrder
 
             $order->setPaymentReference($quote->getPaymentReference())
                 ->save();
-            $quote->setIsActive(0)->save();
+
             $type = Mage_Sales_Model_Order_Payment_Transaction::TYPE_ORDER;
             $id   = $orderData->getData('OrderId');
             Mage::helper('sveacheckout/transaction')->createTransaction(

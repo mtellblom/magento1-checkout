@@ -36,7 +36,6 @@ class Svea_Checkout_IndexController
         ];
     }
 
-
     /**
      * Handles return to payment window with failed payment.
      *
@@ -44,7 +43,7 @@ class Svea_Checkout_IndexController
      *
      * @return Mage_Sales_Model_Quote
      */
-    protected function _restoreQuote($id)
+    protected function _restoreQuote($id, $cancelOrderReference = null)
     {
         $svea        = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
         $session     = Mage::getSingleton('checkout/session');
@@ -53,30 +52,40 @@ class Svea_Checkout_IndexController
         $hasOrder    = Mage::getModel('sales/order')->getCollection()
             ->addAttributeToSelect('id')
             ->addAttributeToFilter('quote_id', $id)
-            ->getSize();
-
-        if (
-            !$hasOrder
-            && $oldQuote->getIsActive()
-            && $oldQuote->hasItems()
-            && !$oldQuote->getHasError()
+            ->getSize() > 0;
+            if (
+               !$hasOrder &&
+               $oldQuote->getIsActive() &&
+               $oldQuote->hasItems() &&
+               !$oldQuote->getHasError()
         ) {
 
             return $oldQuote;
-        } else {
-            $sveaOrderId = null;
+        } elseif($hasOrder && $cancelOrderReference) {
+            $order = Mage::getModel('sales/order')->load($cancelOrderReference, 'increment_id');
+            if (
+                'new' == $order->getState()
+                && $order->canCancel()
+                && ($order->getPayment() && !sizeof($order->getPayment()->getAdditionalInformation()))
+            ) {
+                $order->cancel()
+                    ->save();
+                Mage::helper('sveacheckout/Debug')->writeToLog(
+                    'cancelled duplicate order id'. $order->getId()
+                );
+            }
         }
 
         $quote = Mage::getModel('sales/quote')->setStore(Mage::app()->getStore());
+
         $quote->merge($oldQuote)
             ->setIsActive(1)
             ->setReservedOrderId(null)
             ->setPaymentReference($sveaOrderId)
             ->collectTotals()
+            ->unsLastRealOrderId()
             ->save();
 
-        $session->replaceQuote($quote)
-            ->unsLastRealOrderId();
         $sveaOrder = $svea->createSveaOrderFromQuote($quote);
 
         //Create a new order in Sveas end, to reset URIs.
@@ -132,11 +141,32 @@ class Svea_Checkout_IndexController
 
         if (isset($requestParams['reactivate']) && isset($requestParams['quoteId'])) {
             $quoteId =(int)$requestParams['quoteId'];
-            $this->_restoreQuote($quoteId);
+            $cancelOrderId = null;
+            $quote   = Mage::getModel('sales/quote')->load($quoteId);
+
+            $reservedOrderId = $quote->getReservedOrderId();
+            if ($reservedOrderId && $reservedOrderId !== $quoteId) {
+                $orderExists = Mage::getModel('sales/order')->getCollection()
+                    ->addAttributeToFilter('increment_id', $reservedOrderId)->getSize();
+
+                \dahbug::dump($reservedOrderId);
+                $cancelOrderReference = $orderExists ? $reservedOrderId : null;
+            }
+
+            $quote = $this->_restoreQuote($quoteId, $cancelOrderReference);
+
 
             return $this->_redirect('sveacheckout/index');
         } else {
             $quote = $session->getQuote();
+            $svea  = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
+            if ($quote->getPaymentReference() > 0) {
+                $sveaOrderId  = $quote->getData('payment_reference');
+                $sveaOrder    = $svea->createSveaOrderFromQuote($quote);
+                $sveaOrder    = $sveaOrder->setCheckoutOrderId((int)$sveaOrderId)->getOrder();
+                $quote->setReservedOrderId(null)->save();
+                $session->unsLastRealOrderId();
+            }
         }
 
         if (!$quote->hasItems() || $quote->getHasError()) {
@@ -180,8 +210,9 @@ class Svea_Checkout_IndexController
             return $this->_redirect('checkout/onepage');
         }
 
-        $svea = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
+        $svea      = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
         $sveaOrder = $svea->createSveaOrderFromQuote($quote);
+
         try {
             $response = $this->_getSveaResponse($sveaOrder);
 
