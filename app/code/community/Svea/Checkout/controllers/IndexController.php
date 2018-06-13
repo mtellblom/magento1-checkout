@@ -148,8 +148,6 @@ class Svea_Checkout_IndexController
             if ($reservedOrderId && $reservedOrderId !== $quoteId) {
                 $orderExists = Mage::getModel('sales/order')->getCollection()
                     ->addAttributeToFilter('increment_id', $reservedOrderId)->getSize();
-
-                \dahbug::dump($reservedOrderId);
                 $cancelOrderReference = $orderExists ? $reservedOrderId : null;
             }
 
