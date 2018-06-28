@@ -30,40 +30,26 @@ class Svea_Checkout_Model_Payment_Acknowledge
         $adapter->beginTransaction();
 
         try {
-            $magentoOrders = Mage::getModel('sales/order')
-                ->getCollection()
-                ->addAttributeToFilter('quote_id', $quote->getId())
-                ->addAttributeToSelect('payment_reference');
+            $svea         = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
+            $sveaOrder    = $svea->setupCommunication();
+            $sveaData     = new Varien_Object( $sveaOrder->setCheckoutOrderId((int)$quote->getPaymentReference())->getOrder() );
+            $sveaReference = $sveaData->getData('ClientOrderNumber');
 
-            $indicationOfError = false;
-            if ($magentoOrders->count() >= 2) {
-                $indicationOfError = true;
-            }
-
-            $orderThatMatch = [];
-            foreach ($magentoOrders as $order) {
-                if ($order->getPaymentReference() == $sveaId) {
-                    $orderThatMatch[] = $order;
+            $useForReference = Mage::getStoreConfig('payment/sveacheckout_dev_settings/reference');
+            if (in_array($useForReference , ['suffixed-increment-id','suffixed-order-id'])) {
+                $reference = $sveaReference;
+                $separator = '_';
+                $lastChar = strrpos ($reference , $separator,0);
+                $reference = substr($reference,0, $lastChar);
+                if ($useForReference == 'suffixed-increment-id') {
+                    $magentoOrder = Mage::getModel('sales/order')->load($reference, 'increment_id');
+                } else {
+                    $magentoOrder = Mage::getModel('sales/order')->load($reference, 'entity_id');
                 }
-            }
-
-            if (sizeof($orderThatMatch) >= 2) {
-                foreach ($orderThatMatch as $k => $order) {
-                    if ($order->getStatus() == 'canceled') {
-                        unset($orderThatMatch[$k]);
-                    }
-                }
-            }
-
-            if (sizeof($orderThatMatch) >= 2) {
-
-                throw new Mage_Core_Exception("There were multiple orders that matched SveaOrder with ID {$sveaId}.");
-            } elseif($indicationOfError && sizeof($orderThatMatch)) {
-                $magentoOrder = $orderThatMatch[0]->load();
-            }
-
-            if(!isset($magentoOrder)) {
-                $magentoOrder = Mage::getModel('sales/order')->load($quote->getId(), 'quote_id');
+            } elseif ($useForReference == 'plain-increment-id') {
+                $magentoOrder = Mage::getModel('sales/order')->load($sveaReference, 'increment_id');
+            } else {
+                $magentoOrder = Mage::getModel('sales/order')->load($sveaReference, 'entity_id');
             }
 
             if(!isset($magentoOrder)) {
@@ -90,7 +76,7 @@ class Svea_Checkout_Model_Payment_Acknowledge
                 $magentoOrder->setCustomerEmail($sveaData->getData('EmailAddress'));
             }
 
-            $statusText       = Mage::getStoreConfig('payment/SveaCheckout/order_status_after_acknowledge');
+            $statusText   = Mage::getStoreConfig('payment/SveaCheckout/order_status_after_acknowledge');
             $message      = $helper->__("Order was acknowledged by Svea.");
 
             $appEmulation->stopEnvironmentEmulation($initialEnvironmentInfo);

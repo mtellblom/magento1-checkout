@@ -80,8 +80,8 @@ class Svea_Checkout_Helper_Data
         $newQuote->merge($oldQuote)
             ->collectTotals()
             ->save();
-        $session->replaceQuote($newQuote);
         $oldQuote->setIsActive(0);
+        $session->setQuoteId($newQuote->getId());
 
         return $newQuote;
     }
