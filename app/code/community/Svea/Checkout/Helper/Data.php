@@ -81,6 +81,7 @@ class Svea_Checkout_Helper_Data
             ->collectTotals()
             ->save();
         $oldQuote->setIsActive(0);
+        $session->setQuoteId($newQuote->getId());
 
         return $newQuote;
     }

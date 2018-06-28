@@ -299,6 +299,11 @@ class Svea_Checkout_IndexController
             $response = $this->_invalidateQuote($sveaOrder, $quote);
         }
 
+        if ($response['Status'] == 'Cancelled') {
+
+            $response = $this->_invalidateQuote($sveaOrder, $quote);
+        }
+
         if ($svea->sveaOrderHasErrors($sveaOrder, $quote, $response)) {
             $message = sprintf(
                 $this->__('Error code 205-q%d - Could not load Svea Ekonomi checkout%s'),
