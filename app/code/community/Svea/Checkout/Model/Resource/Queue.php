@@ -26,7 +26,7 @@ class Svea_Checkout_Model_Resource_Queue
      *
      * @return array
      */
-    protected function _prepareDataForSave($object) {
+    protected function _prepareDataForSave(Mage_Core_Model_Abstract $object) {
         $sveaOrder = $object->getData('push_response');
         $object->setData('state', $this->_prepareState($object));
         $object->setData('STAMP_DATE', now());
