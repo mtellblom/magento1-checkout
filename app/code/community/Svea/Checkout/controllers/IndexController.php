@@ -358,7 +358,9 @@ class Svea_Checkout_IndexController
      */
     protected function _renderSnippet($snippet)
     {
-        $this->loadLayout();
+        $this->loadLayout()
+            ->_initLayoutMessages('checkout/session')
+            ->_initLayoutMessages('customer/session');
 
         if ($headBlock = $this->getLayout()->getBlock('head')) {
             $headBlock->setTitle(
