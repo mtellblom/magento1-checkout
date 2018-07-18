@@ -192,7 +192,9 @@ SveaCheckout.prototype = {
     /**
      * Shipping Method buttons
      */
-    $('country-form').observe('change', this.updateCountry.bind(this));
+    if($('country-form') != undefined) {
+      $('country-form').observe('change', this.updateCountry.bind(this));
+    }
     $('co-shipping-method-form').observe('change', this.updateShipping.bind(this));
     $('discount-coupon-form').observe('submit',    this.updateCoupon.bind(this));
   },
