@@ -24,7 +24,7 @@ class Svea_Checkout_Block_Adminhtml_Info_Payment
      *
      * @return Varien_Object
      */
-    protected function _prepareSpecificInformation()
+    protected function _prepareSpecificInformation($transport = null)
     {
         if ($this->_paymentSpecificInformation !== null) {
 
