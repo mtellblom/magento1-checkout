@@ -48,6 +48,19 @@ class Svea_Checkout_PushController
                 ->save();
 
             $responseObject = new Varien_Object($response);
+
+            foreach($response['Cart']['Items'] as $cartItem) {
+                if ('InvoiceFee' == $cartItem['Name']) {
+                    $productId = Mage::getModel('catalog/product')
+                        ->getCollection()
+                        ->addAttributeToFilter('sku', ['eq'=> 'InvoiceFee'])
+                        ->getFirstItem()->getEntityId();
+                    $product = Mage::getModel('catalog/product')->load($productId);
+
+                    $quote->addProduct($product, 1);
+                }
+            }
+
             switch (strtolower($responseObject->getData('Status'))) {
                 case 'created':
                     return $this->reportAndReturn(402, $quoteId . ' : is only in created state.');

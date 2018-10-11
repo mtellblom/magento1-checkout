@@ -153,6 +153,8 @@ class Svea_Checkout_Helper_Data
 
         $errors = [];
         foreach ($quoteItems as $num => $row) {
+            if($row['articleNumber'] == 'InvoiceFee') { continue; }
+
             foreach ($fieldMapper as $keyInQuote => $keyInSvea) {
                 if ($row[$keyInQuote] != $sveaOrderItems[$num][$keyInSvea]) {
                     $errors[] .=  '$row[' . $keyInQuote . '] != $sveaOrderItems[' . $num . ']['. $keyInSvea .']';

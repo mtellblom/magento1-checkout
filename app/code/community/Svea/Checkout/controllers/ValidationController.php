@@ -26,6 +26,10 @@ class Svea_Checkout_ValidationController
         $decryptedSecret = (int)Mage::getModel('Core/Encryption')->decrypt($secret);
         $orderQueueItem  = Mage::getModel('sveacheckout/queue')->load($quoteId, 'quote_id');
 
+        if (Mage::getStoreConfig('payment/sveacheckout_dev_settings/disable_validation')) {
+            return $this->reportAndReturn(201, "Skipping validation for {$quoteId}.");
+        }
+
         if (!$orderQueueItem->getId()) {
 
             return $this->reportAndReturn(204, "QueueItem {$quoteId} not found in queue.");
@@ -129,6 +133,16 @@ class Svea_Checkout_ValidationController
             );
 
             return false;
+        }
+
+        if (Mage::getStoreConfig('payment/sveacheckout_dev_settings/disable_validation')) {
+            print(
+                json_encode(
+                    ['Valid' => true]
+                )
+            );
+
+            return true;
         }
 
         print(

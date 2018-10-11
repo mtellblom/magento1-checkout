@@ -115,7 +115,37 @@
                     <payment_reference />
                 </product_attributes>
             </item>
+
+            <totals>
+                <svea_fee>
+                    <class>svea_checkout/quote_total_fee</class>
+                    <after>subtotal,freeshipping,msrp</after>
+                    <before>shipping,grand_total</before>
+                </svea_fee>
+                <svea_fee_tax>
+                    <class>svea_checkout/quote_total_tax</class>
+                    <after>svea_fee,tax_shipping,discount,msrp,tax</after>
+                    <before>grand_total</before>
+                </svea_fee_tax>
+            </totals>
         </quote>
+        <order_invoice>
+            <totals>
+                <svea_fee>
+                    <class>svea_checkout/invoice_total_fee</class>
+                    <after>subtotal,shipping,cost,tax</after>
+                    <before>grand_total</before>
+                </svea_fee>
+            </totals>
+        </order_invoice>
+        <order_creditmemo>
+            <totals>
+                <svea_fee>
+                    <class>svea_checkout/creditmemo_total_fee</class>
+                    <after>subtotal,wee,discount,shipping,cost_total,grand_total,tax</after>
+                </svea_fee>
+            </totals>
+        </order_creditmemo>
     </sales>
     <scope id="global">
         <fieldset id="sales_convert_quote">
