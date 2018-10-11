@@ -299,6 +299,16 @@ class Svea_Checkout_IndexController
             $response = $this->_invalidateQuote($sveaOrder, $quote);
         }
 
+        if(isset($response['CheckoutValidationCallBackUri'])){
+            $validationUri  = $response['CheckoutValidationCallBackUri'];
+            preg_match('/secret\/(.+)\//', $validationUri, $validationUri);
+            $encryptedSecret = urlencode(Mage::getModel('Core/Encryption')->encrypt($quote->getId()));
+
+            if ($validationUri[1] != $encryptedSecret) {
+                $this->_invalidateQuote($sveaOrder, $quote);
+            }
+        }
+
         if ($response['Status'] == 'Cancelled') {
 
             $response = $this->_invalidateQuote($sveaOrder, $quote);
