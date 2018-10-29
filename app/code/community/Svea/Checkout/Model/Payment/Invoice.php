@@ -243,6 +243,8 @@ class Svea_Checkout_Model_Payment_Invoice
             case 'invoice':
             case 'account':
             case 'accountcredit':
+            case 'sveacardpay':
+            case 'sveacardpay_pf':
 
                 return true;
             default:
