@@ -158,6 +158,7 @@ class Svea_Checkout_IndexController
         } else {
             $quote = $session->getQuote();
             $svea  = Mage::getModel('sveacheckout/Checkout_Api_BuildOrder');
+
             if ($quote->getPaymentReference() > 0) {
                 $sveaOrderId  = $quote->getData('payment_reference');
                 $sveaOrder    = $svea->createSveaOrderFromQuote($quote);
@@ -299,8 +300,8 @@ class Svea_Checkout_IndexController
             $response = $this->_invalidateQuote($sveaOrder, $quote);
         }
 
-        if(isset($response['CheckoutValidationCallBackUri'])){
-            $validationUri  = $response['CheckoutValidationCallBackUri'];
+        if(isset($response['MerchantSettings']['CheckoutValidationCallBackUri'])){
+            $validationUri  = $response['MerchantSettings']['CheckoutValidationCallBackUri'];
             preg_match('/secret\/(.+)\//', $validationUri, $validationUri);
             $encryptedSecret = urlencode(Mage::getModel('Core/Encryption')->encrypt($quote->getId()));
 
