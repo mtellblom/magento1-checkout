@@ -597,6 +597,7 @@ class Svea_Checkout_Model_Payment_Api_Invoice
                 }
             }
 
+            $shippingMethod = mb_substr($shippingMethod, 0, 40);
             if (
                 ($shippingMethod && $shippingMethod == $row['Name'])
                 || (empty($shippingMethod) && $row['UnitPrice'] == 0  && !$row['ArticleNumber'])
