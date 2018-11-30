@@ -117,13 +117,14 @@ class Svea_Checkout_Model_Payment_CreateOrder
         $customer         = new Varien_Object($data->getData('Customer'));
 
         $fakeFull = explode(' ', $billingAddress->getData('FullName'));
-        $fakeFirst = (end($fakeFull)) ? end($fakeFull) : $notNull;
         $fakeLast = (isset($fakeFull[0])) ? $fakeFull[0] : $notNull;
+        if (isset($fakeFull[0])) { unset($fakeFull[0]); }
+        $fakeFirst = (end($fakeFull)) ? implode(' ', $fakeFull) : $notNull;
 
         $fakeFullShipping = explode(' ', $shippingAddress->getData('FullName'));
-        $fakeFirstShipping = (end($fakeFull)) ? end($fakeFull) : $notNull;
-        $fakeLastShipping = (isset($fakeFull[0])) ? $fakeFull[0] : $notNull;
-
+        $fakeLastShipping = (isset($fakeFullShipping[0])) ? $fakeFullShipping[0] : $notNull;
+        if (isset($fakeFullShipping[0])) { unset($fakeFullShipping[0]); }
+        $fakeFirstShipping = (end($fakeFullShipping)) ? implode(' ', $fakeFullShipping) : $notNull;
 
         $reference        = ($data->getData('CustomerReference'))
             ? ($data->getData('CustomerReference'))
