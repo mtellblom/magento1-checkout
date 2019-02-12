@@ -37,6 +37,11 @@
     display: block;
     border: 2px solid  black;
 }
+
+#sveacheckout-wrapper #shipping-zip-form {
+    display: none;
+}
+
 #sveacheckout-wrapper .shipping-and-handling #country {
     margin: 0 auto;
     margin-bottom: 1rem;

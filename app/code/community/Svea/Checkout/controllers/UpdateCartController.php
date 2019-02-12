@@ -103,6 +103,9 @@ class Svea_Checkout_UpdateCartController
                 case 'shipping':
                     $this->_updateQuoteShipping();
                     break;
+                case 'address':
+                    $this->_updateShippingAddress();
+                    break;
                 default:
                     $this->_addResponseMessage(
                         self::SVEA_CHECKOUT_RESPONSE_ERROR,
@@ -685,6 +688,49 @@ class Svea_Checkout_UpdateCartController
         }
 
         return "";
+    }
+
+
+    /**
+     * Save and update current quote after updating shipping method.
+     *
+     */
+    protected function _updateShippingAddress()
+    {
+        $newZip    = $this->getRequest()->getParam('estimate_postcode');
+        $newCity   = $this->getRequest()->getParam('estimate_city');
+        $newRegion = $this->getRequest()->getParam('region_id');
+        $address   = $this->_getQuote()->getShippingAddress();
+        $zip       = $address->getPostcode();
+        $city      = $address->getCity();
+        $region    = $address->getRegionId();
+
+        if (
+            $newZip    !== $zip ||
+            $newCity   !== $city ||
+            $newRegion !== $region
+        ) {
+            try {
+                $this->_getQuote()->getShippingAddress()
+                    ->setCity($newCity)
+                    ->setPostcode($newZip)
+                    ->setRegionId($newRegion)
+                    ->setCollectShippingRates(true);
+                $this->_saveQuoteUpdates();
+
+                $this->_addTotalsBlockToResponse();
+                $this->_addShippingBlockToResponse();
+                $this->_addCouponBlockToResponse();
+                $this->_addSveaBlockToResponse();
+
+                return $this->_sendResponse(200);
+            } catch (\Exception $e) {
+
+                return $this->_sendResponse(400);
+            }
+        }
+
+        return $this->_sendResponse(204);
     }
 
     /**

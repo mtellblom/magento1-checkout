@@ -195,6 +195,10 @@ SveaCheckout.prototype = {
     if($('country-form') != undefined) {
       $('country-form').observe('change', this.updateCountry.bind(this));
     }
+
+    if ($('shipping-zip-form') != undefined) {
+      $('shipping-zip-form').observe('change', this.updateAddress.bind(this));
+    }
     $('co-shipping-method-form').observe('change', this.updateShipping.bind(this));
     $('discount-coupon-form').observe('submit',    this.updateCoupon.bind(this));
   },
@@ -216,6 +220,27 @@ SveaCheckout.prototype = {
     this._debug(formData);
 
     this.doAjaxUpdate('cart', formData);
+  },
+
+  /**
+   * Update Address
+   */
+  updateAddress: function (event) {
+    console.log('waaaat');
+
+    if (typeof event == 'undefined') {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    var formData = $('shipping-zip-form').serialize(true);
+
+    this._debug('Update address');
+    this._debug(formData);
+
+    this.doAjaxUpdate('address', formData);
   },
 
   /**
@@ -264,6 +289,10 @@ SveaCheckout.prototype = {
     this.doAjaxUpdate('coupon', formData);
   },
 
+  /**
+   *
+   * @param event
+   */
   updateCountry: function (event) {
     if (typeof event == 'undefined') {
       return;
@@ -333,7 +362,7 @@ SveaCheckout.prototype = {
       if (typeof html.couponBlock !== 'undefined' && $('discount-coupon-form')) {
         $('discount-coupon-form').update(html.couponBlock);
       }
-      if (typeof html.cartBlock !== 'undefined' && $('sveacheckout-cart') ) {
+      if (typeof html.cartBlock !== 'undefined' && $('sveacheckout-cart')) {
         $('sveacheckout-cart').update(html.cartBlock);
       }
 
@@ -422,18 +451,25 @@ SveaCheckout.prototype = {
     /**
      * Observe the validationresult, check for last error message, if found display it.
      */
-    document.addEventListener("checkoutReady", function() {
-      window.scoApi.observeModel('validation.result', function() {
+    document.addEventListener("checkoutReady", function () {
+      window.scoApi.observeModel('validation.result', function () {
         jQuery.getJSON('/sveacheckout/index/getlasterror', function (data) {
-          if(data) {
+          if (data) {
             this.showMessage(data, 'error');
           }
         }.bind(this));
         window.scoApi.setCheckoutEnabled(true);
       }.bind(this));
     }.bind(this));
+
+    this.initObservers();
   },
 
+  /**
+   *
+   * @param message
+   * @param type
+   */
   showMessage: function (message, type) {
     var messageBox = $('sveacheckout-message');
     messageBox.update(message);
@@ -445,5 +481,23 @@ SveaCheckout.prototype = {
         messageBox.fade().addClassName('hide');
       }, this.opt.messageTimeout);
     }
+  },
+
+  initObservers: function () {
+    if ('scoApi' in window) {
+      window.scoApi.observeEvent("identity.postalCode", function (data) {
+        var oldValue = jQuery('#postcode').val();
+        if (data.value !== oldValue) {
+          jQuery('#postcode').val(data.value);
+          var change = new CustomEvent('change');
+          document.getElementById('shipping-zip-form').dispatchEvent(change);
+        }
+      });
+    } else {
+      setTimeout(function() { this.tryLater() }.bind(this), 500);
+    }
+  },
+  tryLater: function () {
+    this.initObservers();
   },
 };

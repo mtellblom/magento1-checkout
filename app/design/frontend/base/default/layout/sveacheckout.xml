@@ -46,13 +46,23 @@
                     <block type="sveacheckout/checkout_cart_totals" name="checkout.cart.totals" as="totals"
                            template="sveacheckout/checkout/elements/totals.phtml"/>
                 </block>
+
+                <block type="sveacheckout/checkout_shipping_estimate"
+                       name="checkout.shipping.estimate"
+                       template="sveacheckout/checkout/elements/shipping/estimate.phtml"/>
+
                 <block type="sveacheckout/checkout_shipping_methods" name="checkout.shipping"
                        template="sveacheckout/checkout/elements/shipping/methods.phtml">
                     <block type="checkout/onepage_payment" name="checkout.onepage.combability"
                            template="sveacheckout/checkout/elements/shipping/combability.phtml"/>
-                    <block type="sveacheckout/checkout_shipping_method_available" name="checkout.shipping.available"
+                    <block type="sveacheckout/checkout_shipping_method_available"
+                           name="checkout.shipping.available"
                            template="sveacheckout/checkout/elements/shipping/methods/available.phtml"/>
-                    <block type="checkout/onepage_shipping_method_additional" name="checkout.shipping.additional"
+                    <block type="sveacheckout/checkout_shipping_method_available"
+                           name="checkout.shipping.available"
+                           template="sveacheckout/checkout/elements/shipping/methods/available.phtml"/>
+                    <block type="checkout/onepage_shipping_method_additional"
+                           name="checkout.shipping.additional"
                            template="sveacheckout/checkout/elements/shipping/methods/additional.phtml"/>
                 </block>
             </block>

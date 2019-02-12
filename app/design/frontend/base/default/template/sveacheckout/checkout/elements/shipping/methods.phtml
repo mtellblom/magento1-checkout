@@ -19,6 +19,8 @@
                 <?= $this->__('Shipping and handling') ?>
             </h2>
             <div>
+                <?= $this->getChildHtml('cart_shipping') ?>
+
                 <div id="checkout-shipping-method-load">
                     <?= $this->getChildHtml('checkout.shipping.available') ?>
                 </div>
