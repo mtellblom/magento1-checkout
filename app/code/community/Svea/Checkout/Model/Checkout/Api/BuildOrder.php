@@ -451,7 +451,10 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         }
 
         $shippingAddress = $quote->getShippingAddress();
-        if(!$noSave) {
+
+        $noSave = true;
+
+        if(false === $noSave) {
             //update shipping with rates.
             $shippingAddress->setCollectShippingRates(true)
                 ->collectShippingRates()
