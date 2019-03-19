@@ -30,8 +30,24 @@
                 "app/design/adminhtml/default/default/layout/sveacheckout.xml"
             ],
             [
-                "app/design/frontend/base/default/template/",
-                "app/design/frontend/base/default/template/"
+                "app/design/frontend/base/default/template/agreements.phtml",
+                "app/design/frontend/base/default/template/agreements.phtml"
+            ],
+            [
+                "app/design/frontend/base/default/template/sveacheckout.phtml",
+                "app/design/frontend/base/default/template/sveacheckout.phtml"
+            ],
+            [
+                "app/design/frontend/base/default/template/sveacheckout_snippet_renderer.phtml",
+                "app/design/frontend/base/default/template/sveacheckout_snippet_renderer.phtml"
+            ],
+            [
+                "app/design/frontend/base/default/template/sveacheckout",
+                "app/design/frontend/base/default/template/sveacheckout"
+            ],
+            [
+                "app/design/frontend/base/default/template/payment/form/sveacheckout.phtml",
+                "app/design/frontend/base/default/template/payment/form/sveacheckout.phtml"
             ],
             [
                 "app/design/adminhtml/default/default/template/sveacheckout/",
