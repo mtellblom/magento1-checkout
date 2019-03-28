@@ -302,10 +302,9 @@ class Svea_Checkout_IndexController
 
         if(isset($response['MerchantSettings']['CheckoutValidationCallBackUri'])){
             $validationUri  = $response['MerchantSettings']['CheckoutValidationCallBackUri'];
-            preg_match('/secret\/(.+)\//', $validationUri, $validationUri);
-            $encryptedSecret = urlencode(Mage::getModel('Core/Encryption')->encrypt($quote->getId()));
+            preg_match('/quoteId\/([0-9]+)\//', $validationUri, $validationUri);
 
-            if ($validationUri[1] != $encryptedSecret) {
+            if ($validationUri[1] != $quote->getId()) {
                 $this->_invalidateQuote($sveaOrder, $quote);
             }
         }

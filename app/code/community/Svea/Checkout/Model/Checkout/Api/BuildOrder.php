@@ -146,24 +146,18 @@ class Svea_Checkout_Model_Checkout_Api_BuildOrder
         $quoteId = $quote->getId();
         $storeId = Mage::app()->getStore()->getId();
         $mode    = Mage::getStoreConfig('payment/SveaCheckout/testmode', $storeId) ? 'test' : 'prod';
-        $secret  = urlencode(Mage::getModel('Core/Encryption')->encrypt($quoteId));
 
-        $pushParams      = [
+        $callbackParams = [
             'quoteId' => $quoteId,
             'mode'    => $mode,
         ];
 
-        if (isset($pushParams['sveaId'])) {
-            $pushParams['sveaId'] = $quote->getPaymentReference();
+        if (isset($callbackParams['sveaId'])) {
+            $callbackParams['sveaId'] = $quote->getPaymentReference();
         }
 
-        $validationParams = array_merge(
-            $pushParams,
-            ['secret' => $secret]
-        );
-
-        $pushUri          = Mage::getUrl('sveacheckout/push',       $pushParams);
-        $validationUri    = Mage::getUrl('sveacheckout/validation', $validationParams);
+        $pushUri          = Mage::getUrl('sveacheckout/push',       $callbackParams);
+        $validationUri    = Mage::getUrl('sveacheckout/validation', $callbackParams);
         $termsUri         = Mage::getUrl('sveacheckout/index/terms', ['quoteId' => $quoteId]);
 
         //payment_SveaCheckout_override_terms_uri

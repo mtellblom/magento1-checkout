@@ -22,18 +22,11 @@ class Svea_Checkout_ValidationController
         $sveaOrder       = $svea->setupCommunication();
         $request         = $this->getRequest();
         $quoteId         = (int)$request->getParam('quoteId');
-        $secret          = $request->getParam('secret');
-        $decryptedSecret = (int)Mage::getModel('Core/Encryption')->decrypt($secret);
         $orderQueueItem  = Mage::getModel('sveacheckout/queue')->load($quoteId, 'quote_id');
 
         if (!$orderQueueItem->getId()) {
 
             return $this->reportAndReturn(204, "QueueItem {$quoteId} not found in queue.");
-        }
-
-        if ($decryptedSecret !== $quoteId) {
-
-            return $this->reportAndReturn(204, "Secret does not match on Queue ID {$quoteId}.");
         }
 
         try {
