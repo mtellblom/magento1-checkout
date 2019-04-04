@@ -254,6 +254,7 @@ class Svea_Checkout_UpdateCartController
             foreach ($this->_getQuote()->getAllItems() as $item) {
                 if ($item->getItemId() == $itemId) {
                     if (isset($data['qty'])) {
+                        $item->clearMessage();
                         $response = $item->setQty($data['qty']);
                     }
                     unset($data[$itemId]);
